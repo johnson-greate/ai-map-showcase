@@ -9,6 +9,7 @@
   - Gemini 4 Neon (High)：https://johnson-greate.github.io/japan-isometric-cute-map/
   - Claude Opus 5.5 (High)：`./claude-opus-55-japan/index.html`（原檔未修改）
   - GPT-6.2 Astra (High)：`./gpt-62-astra-japan/index.html`（原檔未修改）
-- **🇨🇳 中國 34 省級行政區（雙強同題）**
+- **🇨🇳 中國 34 省級行政區（三強同題）**
   - Gemini 4 Neon (High)：https://johnson-greate.github.io/china-isometric-cute-map/
+  - Claude Opus 5.5 (High)：`./claude-opus-55-china/index.html`（原檔未修改）
   - GPT-6.2 Astra (High)：`./gpt-62-astra-china/index.html`（原檔未修改）

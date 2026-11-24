@@ -308,7 +308,7 @@
           「請開發一個日本地圖，有齊所有日本都道府縣的正名、簡稱、最新官方的人口數目、官方gdp，以及都道府縣廳城市名稱，以及以圖釘標示位置，給大學一年級學生了解日本地理。以isometric map 及可愛風格呈現」
         </div>
         <div class="prompt-box">
-          <strong>🇨🇳 中國版同題 Prompt（雙模型完全一致）</strong>
+          <strong>🇨🇳 中國版同題 Prompt（三模型完全一致）</strong>
           「請開發一個中國地圖，有齊所有中國省份的正名、簡稱、最新官方的人口數目、官方gdp，以及省會城市名稱，以及以圖訂標示位置，給大學一年級學生了解中國地理。以isometric map 及可愛風格呈現」
         </div>
       </div>
@@ -379,28 +379,47 @@
       </article>
     </section>
 
-    <!-- 中國 34 省級行政區雙強對決 -->
+    <!-- 中國 34 省級行政區三強正面對決 -->
     <div class="section-head">
-      <h2>🇨🇳 中國 34 省級行政區・雙強同題對決</h2>
+      <h2>🇨🇳 中國 34 省級行政區・三強同題正面對決</h2>
       <span class="section-note">完全相同 Prompt · 2025 官方最新數據</span>
     </div>
 
-    <section class="cards two-col">
+    <section class="cards">
       <article class="card">
         <div class="card-top">
           <span class="model-pill gemini">✦ Gemini 4 Neon (High)</span>
           <span class="tag-raw">多檔模組化</span>
         </div>
         <h3>中國地理・立體可愛地圖</h3>
-        <p>將 2.5D 立體積木、2025 官方數據視覺化與大一中國地理教學深度整合的互動圖鑑。</p>
+        <p>將逐邊受光真 2.5D 積木、2025 官方數據 3D 視覺化與大一中國地理教學深度整合的互動圖鑑。</p>
         <ul class="highlights">
-          <li><span>🏗️</span><span>真 2.5D 擠出側壁＋點選積木立體拔起＋人口 3D / GDP 3D 高度柱狀圖</span></li>
+          <li><span>🏗️</span><span>真 2.5D 受光側壁＋點選積木立體拔起＋人口 3D / GDP 3D 高度柱狀圖</span></li>
           <li><span>📐</span><span>一鍵疊加「胡煥庸線（黑河—騰衝線）」、七大分區總計、簡稱由來與三大地形階梯</span></li>
-          <li><span>🎯</span><span>4 模式隨堂小測驗（含地圖點擊找省份）＋京津／上海／港澳海上快捷導引標籤</span></li>
+          <li><span>🎯</span><span>4 模式隨堂小測驗（綜合／猜簡稱／找省會／地圖盲點）＋京津／上海／港澳海上快捷導引卡</span></li>
         </ul>
         <div class="cta-wrap">
           <a class="btn-open" href="https://johnson-greate.github.io/china-isometric-cute-map/" target="_blank" rel="noopener">
             🚀 開啟 Gemini 4 Neon 中國版 ↗
+          </a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <span class="model-pill claude">◆ Claude Opus 5.5 (High)</span>
+          <span class="tag-raw">原檔未修改</span>
+        </div>
+        <h3>中國省級行政區 · 等距立體小地圖</h3>
+        <p>互動玩法極為豐富！支援即時拖曳旋轉等距視角、人均 GDP 分級著色、立體數據柱與地圖找省小測驗。</p>
+        <ul class="highlights">
+          <li><span>🧭</span><span>獨家可調「旋轉角度滑桿（-45°~0°）」與等距／俯視切換，搭配漂浮海洋展板</span></li>
+          <li><span>📊</span><span>支援地理分區／人口／GDP／人均 GDP 四種著色、立體圓柱開關與面積／人口密度估算</span></li>
+          <li><span>🎯</span><span>內建 10 題地圖小測驗（自動隱藏標籤＋答錯閃爍提示）與單檔零依賴可排序總表</span></li>
+        </ul>
+        <div class="cta-wrap">
+          <a class="btn-open secondary" href="./claude-opus-55-china/index.html" target="_blank" rel="noopener">
+            🔍 開啟 Claude Opus 5.5 中國版 ↗
           </a>
         </div>
       </article>
@@ -427,8 +446,8 @@
 
     <!-- 客觀維度橫比表 -->
     <div class="section-head">
-      <h2>📊 日本版三強同題客觀對照表</h2>
-      <span class="section-note">各有擅長，交由看倌親自評分</span>
+      <h2>📊 3×2 六強全席・客觀維度橫比總表</h2>
+      <span class="section-note">中國 ＋ 日本雙場實測綜合表現，交由看倌親自評分</span>
     </div>
 
     <div class="table-card">
@@ -443,40 +462,34 @@
         </thead>
         <tbody>
           <tr>
-            <td>Isometric 3D 深度</td>
-            <td>✅ 真 2.5D 受光側壁＋點選積木浮起＋人口／GDP 3D 高度柱狀圖＋互動 3D 沖繩插圖</td>
-            <td>✅ 真 2.5D 雙色側壁＋650ms 絲滑補間高度動畫（平面／人口／GDP 切換）</td>
-            <td>🟡 靜態雙層薄片假陰影（無 3D 高度數據視覺化與積木浮起）</td>
+            <td>Isometric 3D 表現</td>
+            <td>✅ 中日雙版皆為<strong>真 2.5D 逐邊受光側壁</strong>＋點選浮起＋依人口／GDP 讓版塊真實 3D 凸起</td>
+            <td>✅ 日本版有 650ms 絲滑 3D 高度補間動畫；中國版有<strong>即時旋轉視角滑桿</strong>＋立體數據柱（側壁採分層堆疊）</td>
+            <td>🟡 中日雙版皆為靜態薄片位移假陰影，無動態 3D 數據高度或點選浮起</td>
           </tr>
           <tr>
             <td>可愛繪本視覺</td>
-            <td>✅ 粉彩和菓子配色＋手繪富士山、小熊、雪人、小鹿、鳥居、溫泉、帆船與飄雲</td>
-            <td>🟡 清爽現代圓角風＋3 朵飄雲＋跳動圖釘（偏簡約數據儀表板，支援深色模式）</td>
-            <td>✅ 博物誌出版級插畫（原創柴犬探險家、復古郵戳、渡輪、明信片）</td>
+            <td>✅ 兩版風格高度統一：粉彩黏土／木質積木＋富士山、熊貓、小鹿、小熊、帆船、飄雲與互動插圖</td>
+            <td>✅ 中國版粉嫩圓潤＋飄雲與 Emoji 景物很討喜；日本版較偏簡約現代數據儀表板（附深色模式）</td>
+            <td>✅ 兩版皆為出版級博物誌美學（原創柴犬探險家、復古郵戳、各省明信片），氣質最典雅</td>
           </tr>
           <tr>
             <td>最新官方數據</td>
-            <td>✅ 2024.10 總務省人口推計＋內閣府縣民經濟計算確報（含排名與人均 GDP）</td>
-            <td>✅ 2025 國勢調查（含對比 2020 增減%）＋2023 年度 GDP（更新極快！）</td>
-            <td>✅ 2026.01.01 住民基本台帳＋2023 年度 GDP＋附 e-Stat／內閣府原表連結</td>
+            <td>✅ 中國 2025 最新官方數據；日本 2024.10 總務省人口推計＋內閣府確報 GDP（含排名與人均）</td>
+            <td>✅ 中國 2025 最新數據（含面積密度與統計口徑備註）；日本 2025 國勢調查（含增減%）＋2023 年度 GDP</td>
+            <td>✅ 中國 2025 逐省統計局公報原連結；日本 2026.01.01 住民基本台帳＋2023 年度 GDP 原表連結（考據最強）</td>
           </tr>
           <tr>
             <td>大一地理教學深度</td>
-            <td>✅ <strong>大幅領先</strong>：構造線、太平洋工業帶、18 異名縣廳考點、舊令制國名、氣候地形筆記、<strong>4 模式隨堂測驗</strong></td>
-            <td>🟡 僅提供基本數據與可排序表，未設計地理脈絡解說、主題線或互動測驗</td>
-            <td>🟡 僅提供基本數據與一覽表，未設計地理脈絡解說、主題線或互動測驗</td>
+            <td>✅ <strong>兩場最完整</strong>：胡煥庸線、大地溝帶、太平洋工業帶、三大地形階梯、簡稱由來、舊國名、18 異名縣廳考點、兩版皆有 4 模式隨堂測驗</td>
+            <td>🟢 <strong>中國版很亮眼</strong>（含人均 GDP 視角、小知識與 10 題地圖測驗）；但日本版未附地理筆記、構造線或測驗，兩場落差較明顯</td>
+            <td>🟡 兩版皆以「精緻資料查閱圖鑑＋收藏書籤」為主，未加入地理結構主題線或互動測驗</td>
           </tr>
           <tr>
-            <td>高密度區點擊體驗</td>
-            <td>✅ 47 實體圖釘＋關東／關西／四國海上快捷導引標籤，縮放自動展開全標籤</td>
-            <td>🟡 1x 總覽時 47 個標籤同時重疊於都會區，需手動縮放點選</td>
-            <td>🟡 都會區僅顯示單一選中標籤與小圓釘，需放大查看鄰近縣市</td>
-          </tr>
-          <tr>
-            <td>離線開檔／架構</td>
-            <td>✅ 模組化多檔，支援直接雙擊 <code>index.html</code> 離線開啟，零依賴秒開</td>
-            <td>🟡 使用 <code>fetch("geo.json")</code>，本機直接雙擊開檔會受 CORS 阻擋（需 HTTP 伺服器）</td>
-            <td>✅ 單檔內嵌零依賴，支援直接雙擊開啟</td>
+            <td>工程穩定度與細節</td>
+            <td>✅ 模組化多檔零依賴，雙擊即開；京津／港澳／關東關西海上快捷標籤防重疊；自行截圖視覺自檢修錯</td>
+            <td>🟢 中國版單檔零依賴完成度極高；日本版使用 <code>fetch("geo.json")</code> 本機雙擊會遇 CORS 限制</td>
+            <td>✅ 單檔內嵌零依賴，響應式與無障礙細節佳（唯中國版單檔達 1.15 MB）</td>
           </tr>
         </tbody>
       </table>
