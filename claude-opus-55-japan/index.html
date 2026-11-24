@@ -1,0 +1,592 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>日本都道府縣立體地圖</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Nunito:wght@600;800;900&display=swap">
+<style>
+/* Layout: a toy-diorama map (isometric slabs on a pastel sea) beside a "postcard" info card; full 47-row table underneath. */
+:root{
+  --sea:#d4ecf2; --sea-line:#b9dde7; --sea-ink:#7fb2c2;
+  --paper:#fffdf7; --paper-2:#f4f1e8; --ink:#2d3a4c; --ink-soft:#64738a; --line:#e3ddd0;
+  --pin:#f0607a; --pin-dark:#c63f5a; --accent:#ef7d5b; --halo:#fffdf7;
+  --wall-ink:#3b4660; --shadow:rgba(40,70,95,.18);
+  --r1:#a7d5f2; --r2:#b5e3c0; --r3:#ffd47e; --r4:#f8b9a4; --r5:#d6c4f1; --r6:#93d9cf; --r7:#f7bfd8; --r8:#c8de8a;
+  --up:#3f9b6b; --down:#d4566d;
+  --f-round:"Huninn","M PLUS Rounded 1c","Hiragino Maru Gothic ProN","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-num:"Nunito","Huninn",ui-rounded,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --sea:#17283b; --sea-line:#22384f; --sea-ink:#5d86a3;
+  --paper:#202d3f; --paper-2:#192536; --ink:#eef3f8; --ink-soft:#9fb0c4; --line:#33445b;
+  --pin:#ff7d93; --pin-dark:#d9506b; --accent:#ff9a76; --halo:#17283b;
+  --wall-ink:#05080f; --shadow:rgba(0,0,0,.45);
+  --r1:#8fc6ea; --r2:#9fd6ad; --r3:#f2c46a; --r4:#f0a690; --r5:#c3afe6; --r6:#7dcabf; --r7:#eaa9c7; --r8:#b6ce78;
+  --up:#6cc896; --down:#ff8a9e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --sea:#17283b; --sea-line:#22384f; --sea-ink:#5d86a3;
+  --paper:#202d3f; --paper-2:#192536; --ink:#eef3f8; --ink-soft:#9fb0c4; --line:#33445b;
+  --pin:#ff7d93; --pin-dark:#d9506b; --accent:#ff9a76; --halo:#17283b;
+  --wall-ink:#05080f; --shadow:rgba(0,0,0,.45);
+  --r1:#8fc6ea; --r2:#9fd6ad; --r3:#f2c46a; --r4:#f0a690; --r5:#c3afe6; --r6:#7dcabf; --r7:#eaa9c7; --r8:#b6ce78;
+  --up:#6cc896; --down:#ff8a9e; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper-2);color:var(--ink);font-family:var(--f-round);font-size:15px;line-height:1.6}
+.wrap{max-width:1320px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+header.top h1{margin:0;font-size:clamp(1.6rem,3.4vw,2.4rem);line-height:1.15;font-weight:400;text-wrap:balance;letter-spacing:.02em}
+header.top h1 .dot{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:var(--pin);margin-right:.3em;vertical-align:.08em;box-shadow:inset -.1em -.1em 0 var(--pin-dark)}
+header.top p{margin:.3rem 0 0;color:var(--ink-soft);max-width:60ch}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:6px 14px;min-width:0}
+.stat b{display:block;font-family:var(--f-num);font-weight:900;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.75rem;color:var(--ink-soft);letter-spacing:.04em}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+@media (max-width:960px){.main{grid-template-columns:minmax(0,1fr)}}
+
+/* map stage */
+.stage{position:relative;background:var(--sea);border-radius:28px;overflow:hidden;border:2px solid var(--sea-line);min-width:0}
+.stage svg{display:block;width:100%;height:auto;aspect-ratio:16/11;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.stage svg.dragging{cursor:grabbing}
+@media (max-width:640px){.stage svg{aspect-ratio:1000/640}.toolbar{left:8px;top:8px}.seg button{padding:3px 9px}.zoom{top:52px;right:8px}.zoom button{width:32px;height:32px}}
+.toolbar{position:absolute;left:12px;top:12px;right:12px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none;align-items:flex-start}
+.toolbar>*{pointer-events:auto}
+.seg{display:inline-flex;background:var(--paper);border-radius:999px;padding:3px;border:1.5px solid var(--line);box-shadow:0 2px 0 var(--line)}
+.seg button{all:unset;cursor:pointer;padding:4px 12px;border-radius:999px;font-size:.85rem;color:var(--ink-soft);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.seg button:focus-visible,.chip:focus-visible,.zoom button:focus-visible,th button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.seg .lab{padding:4px 6px 4px 10px;font-size:.75rem;color:var(--ink-soft);align-self:center}
+.zoom{position:absolute;right:12px;top:110px;display:flex;flex-direction:column;gap:6px}
+.zoom button{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;box-shadow:0 2px 0 var(--line);font-family:var(--f-num);font-weight:900;font-size:1.1rem;color:var(--ink)}
+.zoom button:active{transform:translateY(2px);box-shadow:none}
+.legend{background:var(--paper);border-top:2px solid var(--sea-line);padding:10px 16px;font-size:.8rem;display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center}
+.legend .h{color:var(--ink-soft);margin-bottom:2px}
+.legend .rows{display:flex;flex-wrap:wrap;gap:2px 10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);padding:5px 10px;border-radius:10px;font-size:.8rem;white-space:nowrap;transform:translate(-50%,calc(-100% - 14px));opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+
+/* svg parts */
+.pref{cursor:pointer}
+.pref .top{stroke:var(--halo);stroke-width:1.1;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.pref .wl,.pref .wr{stroke:none}
+.pref:hover .top{filter:brightness(1.06)}
+.pref.sel .top{stroke:var(--ink);stroke-width:2.2}
+.pref.dim{opacity:.35}
+.reg-1 .top{fill:var(--r1)} .reg-2 .top{fill:var(--r2)} .reg-3 .top{fill:var(--r3)} .reg-4 .top{fill:var(--r4)}
+.reg-5 .top{fill:var(--r5)} .reg-6 .top{fill:var(--r6)} .reg-7 .top{fill:var(--r7)} .reg-8 .top{fill:var(--r8)}
+.reg-1 .wl{fill:color-mix(in srgb,var(--r1) 74%,var(--wall-ink))} .reg-1 .wr{fill:color-mix(in srgb,var(--r1) 60%,var(--wall-ink))}
+.reg-2 .wl{fill:color-mix(in srgb,var(--r2) 74%,var(--wall-ink))} .reg-2 .wr{fill:color-mix(in srgb,var(--r2) 60%,var(--wall-ink))}
+.reg-3 .wl{fill:color-mix(in srgb,var(--r3) 74%,var(--wall-ink))} .reg-3 .wr{fill:color-mix(in srgb,var(--r3) 60%,var(--wall-ink))}
+.reg-4 .wl{fill:color-mix(in srgb,var(--r4) 74%,var(--wall-ink))} .reg-4 .wr{fill:color-mix(in srgb,var(--r4) 60%,var(--wall-ink))}
+.reg-5 .wl{fill:color-mix(in srgb,var(--r5) 74%,var(--wall-ink))} .reg-5 .wr{fill:color-mix(in srgb,var(--r5) 60%,var(--wall-ink))}
+.reg-6 .wl{fill:color-mix(in srgb,var(--r6) 74%,var(--wall-ink))} .reg-6 .wr{fill:color-mix(in srgb,var(--r6) 60%,var(--wall-ink))}
+.reg-7 .wl{fill:color-mix(in srgb,var(--r7) 74%,var(--wall-ink))} .reg-7 .wr{fill:color-mix(in srgb,var(--r7) 60%,var(--wall-ink))}
+.reg-8 .wl{fill:color-mix(in srgb,var(--r8) 74%,var(--wall-ink))} .reg-8 .wr{fill:color-mix(in srgb,var(--r8) 60%,var(--wall-ink))}
+.shadow path{fill:var(--shadow)}
+.grid line{stroke:var(--sea-line);stroke-width:1;vector-effect:non-scaling-stroke}
+.sea-label{fill:var(--sea-ink);font-family:var(--f-round);letter-spacing:.3em}
+.inset{fill:none;stroke:var(--sea-ink);stroke-dasharray:5 5;stroke-width:1.2;vector-effect:non-scaling-stroke}
+.inset-label{fill:var(--sea-ink);font-family:var(--f-round)}
+.pin{cursor:pointer}
+.pin .body{fill:var(--pin);stroke:var(--pin-dark);stroke-width:1}
+.pin .eye{fill:#fff}
+.pin .gnd{fill:var(--shadow)}
+.pin.sel .body{fill:var(--accent)}
+.pin.sel{animation:hop .9s ease-in-out infinite}
+@keyframes hop{0%,100%{translate:0 0}50%{translate:0 -4px}}
+.plabel{font-family:var(--f-round);fill:var(--ink);paint-order:stroke;stroke:var(--halo);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.plabel.sel{font-weight:700}
+.cloud{fill:var(--paper);opacity:.75}
+@media (prefers-reduced-motion:reduce){.pin.sel{animation:none}.drift{animation:none!important}}
+.drift{animation:drift 40s linear infinite alternate}
+@keyframes drift{from{translate:-30px 0}to{translate:30px 0}}
+
+/* info card */
+.card{background:var(--paper);border-radius:24px;border:2px solid var(--line);padding:18px 18px 16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:grid;gap:14px;min-width:0}
+@media (max-width:960px){.card{position:static}}
+.card .eyebrow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.8rem;color:var(--ink-soft)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:.78rem;color:#2d3a4c}
+.card h2{margin:0;font-size:2.1rem;font-weight:400;line-height:1.1;letter-spacing:.04em}
+.card .reading{color:var(--ink-soft);font-size:.9rem;margin-top:4px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:.92rem}
+.kv dt{color:var(--ink-soft);white-space:nowrap}
+.kv dd{margin:0;min-width:0}
+.capital{display:flex;align-items:center;gap:8px}
+.capital svg{flex:none}
+.metric{background:var(--paper-2);border-radius:16px;padding:10px 12px;display:grid;gap:4px}
+.metric .lab{display:flex;justify-content:space-between;font-size:.78rem;color:var(--ink-soft);gap:8px}
+.metric .big{font-family:var(--f-num);font-weight:900;font-size:1.5rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.metric .big small{font-family:var(--f-round);font-weight:400;font-size:.85rem;margin-left:4px;color:var(--ink-soft)}
+.metric .sub{font-size:.8rem;color:var(--ink-soft)}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .5s}
+.chg.up{color:var(--up)} .chg.down{color:var(--down)}
+.nav{display:flex;gap:8px}
+.nav button{all:unset;cursor:pointer;flex:1;text-align:center;padding:6px 0;border-radius:12px;border:1.5px solid var(--line);font-size:.85rem;color:var(--ink-soft)}
+.nav button:hover{color:var(--ink);border-color:var(--ink-soft)}
+.nav button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* regions + table */
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{all:unset;cursor:pointer;padding:5px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);font-size:.85rem;display:inline-flex;gap:6px;align-items:center}
+.chip i{width:10px;height:10px;border-radius:50%}
+.chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.chips .hint{font-size:.8rem;color:var(--ink-soft);margin-right:4px}
+section.list{background:var(--paper);border-radius:24px;border:2px solid var(--line);padding:18px;display:grid;gap:14px;min-width:0}
+section.list h3{margin:0;font-weight:400;font-size:1.3rem}
+.listhead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.search{font:inherit;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper-2);color:var(--ink);min-width:0;width:240px;max-width:100%}
+.search:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.tablewrap{overflow-x:auto;border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:.9rem}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:400;color:var(--ink-soft);font-size:.8rem;position:sticky;top:0;background:var(--paper)}
+th button{all:unset;cursor:pointer}
+th button::after{content:"";margin-left:4px}
+th[aria-sort="ascending"] button::after{content:"▲"}
+th[aria-sort="descending"] button::after{content:"▼"}
+td.r,th.r{text-align:right}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--paper-2)}
+tbody tr.sel{background:color-mix(in srgb,var(--accent) 16%,var(--paper))}
+td .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+td .kana{color:var(--ink-soft);font-size:.8rem;margin-left:6px}
+.share{display:inline-block;width:60px;height:6px;border-radius:9px;background:var(--line);vertical-align:middle;margin-left:8px;overflow:hidden}
+.share i{display:block;height:100%;background:var(--accent)}
+footer{font-size:.8rem;color:var(--ink-soft);display:grid;gap:4px;max-width:90ch}
+footer a{color:inherit}
+.err{padding:40px;text-align:center;color:var(--ink-soft)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1><span class="dot" aria-hidden="true"></span>日本都道府縣立體地圖</h1>
+      <p>47 個都道府縣的正式名稱、簡稱、都道府縣廳所在地、最新官方人口與縣內生產總值（GDP）。點選地圖、圖釘或下方表格查看每一個都道府縣。</p>
+    </div>
+    <div class="stats" aria-label="全國合計">
+      <div class="stat"><b class="num">47</b><span>都道府縣</span></div>
+      <div class="stat"><b class="num" id="st-pop"></b><span>總人口・2025 國勢調查</span></div>
+      <div class="stat"><b class="num" id="st-gdp"></b><span>名目縣內生產合計・2023 年度</span></div>
+    </div>
+  </header>
+
+  <div class="chips" id="regionChips" role="group" aria-label="按地方縮放"><span class="hint">跳到地方：</span></div>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <svg id="map" viewBox="0 0 1000 690" role="img" aria-label="日本都道府縣等角立體地圖"></svg>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="高度代表">
+          <span class="lab">高度</span>
+          <button type="button" data-h="flat" aria-pressed="false">平面</button>
+          <button type="button" data-h="pop" aria-pressed="true">人口</button>
+          <button type="button" data-h="gdp" aria-pressed="false">GDP</button>
+        </div>
+        <div class="seg" role="group" aria-label="名稱標籤">
+          <button type="button" id="lblBtn" aria-pressed="true">顯示名稱</button>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div class="zoom">
+        <button type="button" id="zin" aria-label="放大">+</button>
+        <button type="button" id="zout" aria-label="縮小">−</button>
+        <button type="button" id="zreset" aria-label="顯示全國" style="font-size:.8rem">全</button>
+      </div>
+      <div class="tip" id="tip"></div>
+    </div>
+
+    <aside class="card" id="card" aria-live="polite"></aside>
+  </div>
+
+  <section class="list">
+    <div class="listhead">
+      <h3>47 都道府縣一覽</h3>
+      <input class="search" id="q" type="search" placeholder="搜尋：東京 / とうきょう / Tokyo" aria-label="搜尋都道府縣">
+    </div>
+    <div class="tablewrap">
+      <table id="tbl">
+        <thead><tr>
+          <th data-k="id" aria-sort="ascending"><button type="button">編號</button></th>
+          <th data-k="name"><button type="button">正式名稱（讀音）</button></th>
+          <th data-k="short"><button type="button">簡稱</button></th>
+          <th data-k="en"><button type="button">英文</button></th>
+          <th data-k="reg"><button type="button">地方</button></th>
+          <th data-k="cap"><button type="button">都道府縣廳所在地</button></th>
+          <th data-k="pop" class="r"><button type="button">人口（2025）</button></th>
+          <th data-k="chg" class="r"><button type="button">對比 2020</button></th>
+          <th data-k="gdp" class="r"><button type="button">名目 GDP（2023 年度）</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div><b>資料來源</b></div>
+    <div>人口：總務省統計局〈令和 7 年國勢調查 人口等基本集計〉，2025 年 10 月 1 日現在，2026 年 9 月 29 日公布。<a href="https://www.stat.go.jp/data/kokusei/2025/kekka.html" target="_blank" rel="noopener">stat.go.jp</a></div>
+    <div>GDP：內閣府經濟社會總合研究所〈縣民經濟計算（令和 5 年度）〉縣內總生產（生產側、名目），單位換算為兆日圓。<a href="https://www.esri.cao.go.jp/jp/sna/data/data_list/kenmin/files/contents/main_2023.html" target="_blank" rel="noopener">esri.cao.go.jp</a></div>
+    <div>地圖邊界：dataofjapan/land（以國土數值情報為基礎），經簡化處理。沖繩縣以虛線框移位顯示；東京都的小笠原群島等遠洋島嶼未在圖上顯示。圖釘位置為都道府縣廳所在地。</div>
+  </footer>
+</div>
+
+<script>
+const RAW = [[1,"北海道","北海道","ほっかいどう","Hokkaido",1,"札幌市","さっぽろし",43.064,141.347,4980272,5224614,21504186],[2,"青森県","青森","あおもりけん","Aomori",2,"青森市","あおもりし",40.824,140.74,1139461,1237984,4624410],[3,"岩手県","岩手","いわてけん","Iwate",2,"盛岡市","もりおかし",39.704,141.153,1124652,1210534,4897288],[4,"宮城県","宮城","みやぎけん","Miyagi",2,"仙台市","せんだいし",38.269,140.872,2225414,2301996,10050939],[5,"秋田県","秋田","あきたけん","Akita",2,"秋田市","あきたし",39.719,140.102,881470,959502,3739591],[6,"山形県","山形","やまがたけん","Yamagata",2,"山形市","やまがたし",38.24,140.364,992297,1068027,4765009],[7,"福島県","福島","ふくしまけん","Fukushima",2,"福島市","ふくしまし",37.75,140.468,1710242,1833152,8395029],[8,"茨城県","茨城","いばらきけん","Ibaraki",3,"水戸市","みとし",36.342,140.447,2789856,2867009,14735500],[9,"栃木県","栃木","とちぎけん","Tochigi",3,"宇都宮市","うつのみやし",36.566,139.884,1863329,1933146,9827871],[10,"群馬県","群馬","ぐんまけん","Gunma",3,"前橋市","まえばしし",36.391,139.061,1865934,1939110,9898757],[11,"埼玉県","埼玉","さいたまけん","Saitama",3,"さいたま市","さいたまし",35.857,139.649,7287325,7344765,25886720],[12,"千葉県","千葉","ちばけん","Chiba",3,"千葉市","ちばし",35.605,140.123,6257225,6284480,22174933],[13,"東京都","東京","とうきょうと","Tokyo",3,"東京（新宿区）","しんじゅくく",35.69,139.692,14236627,14047594,125018533],[14,"神奈川県","神奈川","かながわけん","Kanagawa",3,"横浜市","よこはまし",35.448,139.642,9193922,9237337,37331308],[15,"新潟県","新潟","にいがたけん","Niigata",4,"新潟市","にいがたし",37.902,139.023,2067144,2201272,9462168],[16,"富山県","富山","とやまけん","Toyama",4,"富山市","とやまし",36.695,137.211,982147,1034814,5064496],[17,"石川県","石川","いしかわけん","Ishikawa",4,"金沢市","かなざわし",36.594,136.626,1086596,1132526,4871117],[18,"福井県","福井","ふくいけん","Fukui",4,"福井市","ふくいし",36.065,136.222,728588,766863,3954227],[19,"山梨県","山梨","やまなしけん","Yamanashi",4,"甲府市","こうふし",35.664,138.568,779276,809974,3678910],[20,"長野県","長野","ながのけん","Nagano",4,"長野市","ながのし",36.651,138.181,1953866,2048011,9036857],[21,"岐阜県","岐阜","ぎふけん","Gifu",4,"岐阜市","ぎふし",35.391,136.722,1889576,1978742,8386243],[22,"静岡県","静岡","しずおかけん","Shizuoka",4,"静岡市","しずおかし",34.977,138.383,3465667,3633202,19118151],[23,"愛知県","愛知","あいちけん","Aichi",4,"名古屋市","なごやし",35.18,136.907,7448043,7542415,46091073],[24,"三重県","三重","みえけん","Mie",5,"津市","つし",34.73,136.509,1693225,1770254,8995504],[25,"滋賀県","滋賀","しがけん","Shiga",5,"大津市","おおつし",35.004,135.868,1392008,1413610,7362505],[26,"京都府","京都","きょうとふ","Kyoto",5,"京都市","きょうとし",35.021,135.756,2500173,2578087,11510399],[27,"大阪府","大阪","おおさかふ","Osaka",5,"大阪市","おおさかし",34.686,135.52,8759312,8837685,44992432],[28,"兵庫県","兵庫","ひょうごけん","Hyogo",5,"神戸市","こうべし",34.691,135.183,5317792,5465002,23989541],[29,"奈良県","奈良","ならけん","Nara",5,"奈良市","ならし",34.685,135.833,1268181,1324473,3954971],[30,"和歌山県","和歌山","わかやまけん","Wakayama",5,"和歌山市","わかやまし",34.226,135.168,863757,922584,4010734],[31,"鳥取県","鳥取","とっとりけん","Tottori",6,"鳥取市","とっとりし",35.504,134.238,523073,553407,1993048],[32,"島根県","島根","しまねけん","Shimane",6,"松江市","まつえし",35.472,133.051,628887,671126,2961032],[33,"岡山県","岡山","おかやまけん","Okayama",6,"岡山市","おかやまし",34.662,133.935,1807160,1888432,8259966],[34,"広島県","広島","ひろしまけん","Hiroshima",6,"広島市","ひろしまし",34.397,132.46,2682786,2799702,12608090],[35,"山口県","山口","やまぐちけん","Yamaguchi",6,"山口市","やまぐちし",34.186,131.471,1262770,1342059,6725437],[36,"徳島県","徳島","とくしまけん","Tokushima",7,"徳島市","とくしまし",34.066,134.559,674790,719559,3451372],[37,"香川県","香川","かがわけん","Kagawa",7,"高松市","たかまつし",34.34,134.043,906828,950244,4094107],[38,"愛媛県","愛媛","えひめけん","Ehime",7,"松山市","まつやまし",33.842,132.766,1259907,1334841,5264699],[39,"高知県","高知","こうちけん","Kochi",7,"高知市","こうちし",33.56,133.531,642836,691527,2453490],[40,"福岡県","福岡","ふくおかけん","Fukuoka",8,"福岡市","ふくおかし",33.607,130.418,5077785,5135214,21238732],[41,"佐賀県","佐賀","さがけん","Saga",8,"佐賀市","さがし",33.249,130.299,780675,811442,3436281],[42,"長崎県","長崎","ながさきけん","Nagasaki",8,"長崎市","ながさきし",32.75,129.87,1232040,1312317,4990487],[43,"熊本県","熊本","くまもとけん","Kumamoto",8,"熊本市","くまもとし",32.79,130.742,1677302,1738301,6723701],[44,"大分県","大分","おおいたけん","Oita",8,"大分市","おおいたし",33.238,131.613,1076353,1123852,5088664],[45,"宮崎県","宮崎","みやざきけん","Miyazaki",8,"宮崎市","みやざきし",31.911,131.424,1017628,1069576,3985339],[46,"鹿児島県","鹿児島","かごしまけん","Kagoshima",8,"鹿児島市","かごしまし",31.56,130.558,1511783,1588256,6415994],[47,"沖縄県","沖縄","おきなわけん","Okinawa",8,"那覇市","なはし",26.212,127.681,1466548,1467480,4642960]];
+const REG = [null,
+  {n:"北海道地方",c:"--r1"},{n:"東北地方",c:"--r2"},{n:"關東地方",c:"--r3"},{n:"中部地方",c:"--r4"},
+  {n:"近畿地方",c:"--r5"},{n:"中國地方",c:"--r6"},{n:"四國地方",c:"--r7"},{n:"九州・沖繩地方",c:"--r8"}];
+const P = RAW.map(r=>({id:r[0],name:r[1],short:r[2],kana:r[3],en:r[4],reg:r[5],cap:r[6],capKana:r[7],lat:r[8],lon:r[9],pop:r[10],pop20:r[11],gdp:r[12]}));
+const byId = {}; P.forEach(p=>byId[p.id]=p);
+const TOT_POP = P.reduce((s,p)=>s+p.pop,0), TOT_GDP = P.reduce((s,p)=>s+p.gdp,0);
+const MAX_POP = Math.max(...P.map(p=>p.pop)), MAX_GDP = Math.max(...P.map(p=>p.gdp));
+const rankOf = k => { const s=[...P].sort((a,b)=>b[k]-a[k]); const m={}; s.forEach((p,i)=>m[p.id]=i+1); return m; };
+const RANK_POP = rankOf("pop"), RANK_GDP = rankOf("gdp");
+P.forEach(p=>p.chg=(p.pop-p.pop20)/p.pop20*100);
+
+const fmt = n => n.toLocaleString("en-US");
+const man = n => (n/1e4).toLocaleString("en-US",{maximumFractionDigits:1});           // 萬人
+const cho = m => (m/1e6).toLocaleString("en-US",{minimumFractionDigits:1,maximumFractionDigits:2}); // 百萬円 → 兆円
+const oku = m => Math.round(m/100).toLocaleString("en-US");                            // 百萬円 → 億円
+document.getElementById("st-pop").textContent = (TOT_POP/1e8).toFixed(3)+" 億人";
+document.getElementById("st-gdp").textContent = Math.round(TOT_GDP/1e6)+" 兆円";
+
+/* ---------- projection (isometric-style: rotate, then squash) ---------- */
+const TH = -12*Math.PI/180, SQ = 0.62, CL = Math.cos(36*Math.PI/180);
+const OKI = {dlon:9.5, dlat:4.5};   // Okinawa shown in an inset, moved into the Pacific south of Shikoku
+const OKI_BOX=[122.8,24.0,131.6,28.0];
+let FIT={s:1,x:0,y:0};
+function rawProj(lon,lat){
+  const X=(lon-136.8)*CL, Y=lat-36.6;
+  const xr=X*Math.cos(TH)-Y*Math.sin(TH), yr=X*Math.sin(TH)+Y*Math.cos(TH);
+  return [xr, -yr*SQ];
+}
+function proj(lon,lat){const [x,y]=rawProj(lon,lat);return [FIT.x+x*FIT.s, FIT.y+y*FIT.s];}
+function computeFit(geo){
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  const add=(lo,la,id)=>{const [x,y]=id===47?rawProj(lo+OKI.dlon,la+OKI.dlat):rawProj(lo,la);x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);};
+  for(const id in geo) geo[id].forEach(r=>r.forEach(([lo,la])=>add(lo,la,+id)));
+  add(OKI_BOX[0],OKI_BOX[1],47); add(OKI_BOX[2],OKI_BOX[3],47);
+  const W=1000,H=690,pl=20,pr=64,pt=40,pb=16;
+  const s=Math.min((W-pl-pr)/(x1-x0),(H-pt-pb-HMAX*0.5)/(y1-y0));
+  FIT={s, x:pl+((W-pl-pr)-(x1-x0)*s)/2 - x0*s, y:pt+HMAX*0.5+((H-pt-pb-HMAX*0.5)-(y1-y0)*s)/2 - y0*s};
+}
+const projP = (p,lon,lat) => p.id===47 ? proj(lon+OKI.dlon, lat+OKI.dlat) : proj(lon,lat);
+
+const NS="http://www.w3.org/2000/svg";
+const el=(t,a={},parent)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(parent)parent.appendChild(e);return e;};
+const svg=document.getElementById("map");
+const BASE=5, HMAX=78;
+let mode="pop", showLabels=true, selId=13, hNow={}, hTarget={};
+const hFor=(p,m)=> m==="pop"? HMAX*p.pop/MAX_POP : m==="gdp"? HMAX*p.gdp/MAX_GDP : 0;
+
+const SEA_TXT=[];
+let world, gShadow, gPrefs, gPins, gLabels, K=1, TX=0, TY=0;
+
+function init(geo){
+  computeFit(geo);
+  // precompute projected rings
+  P.forEach(p=>{
+    p.rings=(geo[p.id]||[]).map(r=>r.map(([lo,la])=>projP(p,lo,la)));
+    p.rings.forEach(r=>{let a=0;for(let i=0;i<r.length;i++){const q=r[i],w=r[(i+1)%r.length];a+=q[0]*w[1]-w[0]*q[1];}r.sgn=a>0?1:-1;r.area=Math.abs(a/2);});
+    let sx=0,sy=0,sw=0; p.rings.forEach(r=>{r.forEach(q=>{sx+=q[0]*r.area;sy+=q[1]*r.area;sw+=r.area;});});
+    const n=p.rings.reduce((s,r)=>s+r.length*r.area,0);
+    p.depth = sy/(n||1);
+    let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; p.rings.forEach(r=>r.forEach(([x,y])=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}));
+    p.bb=[x0,y0,x1,y1];
+    p.pin=projP(p,p.lon,p.lat);
+    hNow[p.id]=hFor(p,mode);
+  });
+
+  // decorations
+  const defs=el("defs",{},svg);
+  world=el("g",{},svg);
+  drawSea(world);
+  gShadow=el("g",{class:"shadow"},world);
+  gPrefs=el("g",{},world);
+  gPins=el("g",{},world);
+  gLabels=el("g",{},world);
+
+  [...P].sort((a,b)=>a.depth-b.depth).forEach(p=>{
+    const g=el("g",{class:`pref reg-${p.reg}`,"data-id":p.id,tabindex:"-1"},gPrefs);
+    p.gL=el("path",{class:"wl"},g); p.gR=el("path",{class:"wr"},g); p.gT=el("path",{class:"top"},g);
+    p.g=g;
+    p.sh=el("path",{},gShadow);
+    p.sh.setAttribute("d", ringsPath(p.rings,3,4));
+  });
+  // pins sorted by screen y so front pins overlap back pins
+  [...P].sort((a,b)=>a.pin[1]-b.pin[1]).forEach(p=>{
+    const g=el("g",{class:"pin","data-id":p.id},gPins);
+    el("ellipse",{class:"gnd",cx:0,cy:0,rx:4,ry:1.6},g);
+    el("path",{class:"body",d:"M0 0C-1.6-3.6-6-6.6-6-11.2A6 6 0 1 1 6-11.2C6-6.6 1.6-3.6 0 0Z"},g);
+    el("circle",{class:"eye",cx:0,cy:-11.2,r:2.3},g);
+    p.pinEl=g;
+    const t=el("text",{class:"plabel","text-anchor":"middle"},gLabels); t.textContent=p.short; p.lbl=t;
+  });
+
+  render(); applyView(); buildCard(); buildTable(); buildChips(); buildLegend(); wire();
+}
+
+function ringsPath(rings,dx=0,dy=0){
+  return rings.map(r=>"M"+r.map(([x,y])=>(x+dx).toFixed(1)+" "+(y+dy).toFixed(1)).join("L")+"Z").join("");
+}
+function render(){
+  P.forEach(p=>{
+    const h=BASE+hNow[p.id]+(p.id===selId?6:0);
+    let L="",R="";
+    const big=Math.max(...p.rings.map(r=>r.area));
+    p.rings.forEach(r=>{
+      const n=r.length, hr= r.area>big*0.06 ? h : BASE+(p.id===selId?6:0);
+      for(let i=0;i<n;i++){
+        const a=r[i], b=r[(i+1)%n];
+        const dx=b[0]-a[0], dy=b[1]-a[1];
+        const nx= r.sgn>0? dy:-dy, ny= r.sgn>0? -dx:dx;
+        if(ny<=0) continue;                  // faces away from viewer
+        const q=`M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}L${b[0].toFixed(1)} ${(b[1]-hr).toFixed(1)}L${a[0].toFixed(1)} ${(a[1]-hr).toFixed(1)}Z`;
+        if(nx<0) L+=q; else R+=q;
+      }
+    });
+    p.gL.setAttribute("d",L); p.gR.setAttribute("d",R);
+    p.gT.setAttribute("d",p.rings.map(r=>ringsPath([r],0,-(r.area>big*0.06?h:BASE+(p.id===selId?6:0)))).join(""));
+    p.topY=h;
+  });
+  placePins();
+}
+function placePins(){
+  const s=1/Math.pow(K,0.75);
+  SEA_TXT.forEach(t=>t.setAttribute("font-size",(t.dataset.fs/Math.pow(K,0.85)).toFixed(2)));
+  P.forEach(p=>{
+    const [x,y]=p.pin, h=p.topY;
+    p.pinEl.setAttribute("transform",`translate(${x.toFixed(1)} ${(y-h).toFixed(1)}) scale(${(s*(p.id===selId?1.35:1)).toFixed(3)})`);
+    p.pinEl.classList.toggle("sel",p.id===selId);
+    const fs=(p.id===selId?12.5:10.5)*s;
+    p.lbl.setAttribute("x",x.toFixed(1)); p.lbl.setAttribute("y",(y-h+fs+2*s).toFixed(1));
+    p.lbl.setAttribute("font-size",fs.toFixed(2));
+    p.lbl.style.strokeWidth=(3*s)+"px";
+    p.lbl.classList.toggle("sel",p.id===selId);
+    p.lbl.style.display=(showLabels||p.id===selId)?"":"none";
+  });
+}
+
+function drawSea(g){
+  const grid=el("g",{class:"grid"},g);
+  for(let lon=125;lon<=150;lon+=5){const a=proj(lon,22),b=proj(lon,48);el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1]},grid);}
+  for(let lat=25;lat<=47;lat+=5){const a=proj(120,lat),b=proj(152,lat);el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1]},grid);}
+  const sl=(t,lon,lat,fs)=>{const [x,y]=proj(lon,lat);const e=el("text",{class:"sea-label",x,y,"font-size":fs,"text-anchor":"middle"},g);e.textContent=t;e.dataset.fs=fs;SEA_TXT.push(e);};
+  sl("太 平 洋",144.5,35.2,24); sl("日 本 海",134.0,39.6,22); sl("鄂 霍 次 克 海",145.5,46.6,14);
+  // Okinawa inset frame
+  const ok=P.find(p=>p.id===47);
+  const [a0,b0,a1,b1]=OKI_BOX;
+  const c=[proj(a0+OKI.dlon,b0+OKI.dlat),proj(a1+OKI.dlon,b0+OKI.dlat),proj(a1+OKI.dlon,b1+OKI.dlat),proj(a0+OKI.dlon,b1+OKI.dlat)];
+  el("path",{class:"inset",d:"M"+c.map(q=>q[0].toFixed(1)+" "+q[1].toFixed(1)).join("L")+"Z"},g);
+  const lt=el("text",{class:"inset-label",x:c[3][0]+4,y:c[3][1]-8,"font-size":12},g); lt.textContent="沖繩縣（移位顯示）"; lt.dataset.fs=12; SEA_TXT.push(lt);
+  // compass
+  const cg=el("g",{transform:"translate(930 70)"},g);
+  const n=proj(136.8,37.6), o=proj(136.8,36.6); let vx=n[0]-o[0], vy=n[1]-o[1]; const L=Math.hypot(vx,vy); vx/=L; vy/=L;
+  el("circle",{cx:0,cy:0,r:24,fill:"var(--paper)",stroke:"var(--sea-line)","stroke-width":2},cg);
+  el("path",{d:`M${vx*18} ${vy*18}L${-vy*6} ${vx*6}L${vy*6} ${-vx*6}Z`,fill:"var(--pin)"},cg);
+  el("path",{d:`M${-vx*18} ${-vy*18}L${-vy*6} ${vx*6}L${vy*6} ${-vx*6}Z`,fill:"var(--sea-ink)"},cg);
+  const nt=el("text",{x:vx*33,y:vy*33+4,"text-anchor":"middle","font-size":12,fill:"var(--ink)","font-family":"var(--f-round)"},cg); nt.textContent="北";
+  // clouds
+  const cl=(x,y,s)=>{const c=el("g",{class:"drift",transform:`translate(${x} ${y}) scale(${s})`},g);
+    el("path",{class:"cloud",d:"M0 0h52a12 12 0 0 0-10-16 14 14 0 0 0-24-6A11 11 0 0 0 0 0Z"},c);};
+  cl(60,560,1.1); cl(880,600,1); cl(420,110,.9);
+}
+
+/* ---------- view: pan / zoom ---------- */
+function applyView(){ world.setAttribute("transform",`translate(${TX.toFixed(2)} ${TY.toFixed(2)}) scale(${K.toFixed(4)})`); placePins(); }
+function svgPt(cx,cy){const pt=svg.createSVGPoint();pt.x=cx;pt.y=cy;return pt.matrixTransform(svg.getScreenCTM().inverse());}
+function zoomAt(f,sx,sy,anim){
+  const nk=Math.min(9,Math.max(1,K*f)); const wx=(sx-TX)/K, wy=(sy-TY)/K;
+  animateView(nk, sx-wx*nk, sy-wy*nk, anim);
+}
+let viewAnim=null;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function animateView(k,tx,ty,anim=true){
+  [k,tx,ty]=clampView(k,tx,ty);
+  cancelAnimationFrame(viewAnim);
+  if(!anim||reduce){K=k;TX=tx;TY=ty;applyView();return;}
+  const k0=K,x0=TX,y0=TY,t0=performance.now(),D=420;
+  const step=t=>{const u=Math.min(1,(t-t0)/D), e=1-Math.pow(1-u,3);
+    K=k0+(k-k0)*e; TX=x0+(tx-x0)*e; TY=y0+(ty-y0)*e; applyView(); if(u<1) viewAnim=requestAnimationFrame(step);};
+  viewAnim=requestAnimationFrame(step);
+}
+function clampView(k,tx,ty){
+  const vb=svg.viewBox.baseVal; const m=200;
+  tx=Math.min(m, Math.max(vb.width-vb.width*k-m, tx));
+  ty=Math.min(m, Math.max(vb.height-vb.height*k-m, ty));
+  if(k===1){tx=0;ty=0;}
+  return [k,tx,ty];
+}
+function fitBox(x0,y0,x1,y1){
+  const vb=svg.viewBox.baseVal, pad=50;
+  const k=Math.min(9,Math.max(1,Math.min(vb.width/(x1-x0+pad*2), vb.height/(y1-y0+pad*2))));
+  animateView(k, vb.width/2-k*(x0+x1)/2, vb.height/2-k*(y0+y1)/2);
+}
+function fitRegion(r){
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  P.filter(p=>!r||p.reg===r).forEach(p=>{x0=Math.min(x0,p.bb[0]);y0=Math.min(y0,p.bb[1]-BASE-hNow[p.id]-20);x1=Math.max(x1,p.bb[2]);y1=Math.max(y1,p.bb[3]);});
+  if(!r){animateView(1,0,0);return;}
+  fitBox(x0,y0,x1,y1);
+}
+
+/* ---------- height mode tween ---------- */
+let hAnim=null;
+function setMode(m){
+  mode=m;
+  document.querySelectorAll("[data-h]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.h===m)));
+  buildLegend();
+  const from={...hNow}, to={}; P.forEach(p=>to[p.id]=hFor(p,m));
+  cancelAnimationFrame(hAnim);
+  if(reduce){hNow=to;render();return;}
+  const t0=performance.now(), D=650;
+  const step=t=>{const u=Math.min(1,(t-t0)/D), e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+    P.forEach(p=>hNow[p.id]=from[p.id]+(to[p.id]-from[p.id])*e); render(); if(u<1) hAnim=requestAnimationFrame(step);};
+  hAnim=requestAnimationFrame(step);
+}
+
+/* ---------- selection & card ---------- */
+function select(id,{zoom=false}={}){
+  selId=id;
+  P.forEach(p=>p.g.classList.toggle("sel",p.id===id));
+  render(); buildCard();
+  document.querySelectorAll("#tbl tbody tr").forEach(tr=>tr.classList.toggle("sel",+tr.dataset.id===id));
+  if(zoom){const p=byId[id]; fitBox(p.bb[0],p.bb[1]-BASE-hNow[id]-30,p.bb[2],p.bb[3]); }
+}
+function pinIcon(){return `<svg width="16" height="20" viewBox="-7 -19 14 20" aria-hidden="true"><path d="M0 0C-1.6-3.6-6-6.6-6-11.2A6 6 0 1 1 6-11.2C6-6.6 1.6-3.6 0 0Z" fill="var(--pin)" stroke="var(--pin-dark)"/><circle cx="0" cy="-11.2" r="2.3" fill="#fff"/></svg>`;}
+function buildCard(){
+  const p=byId[selId], r=REG[p.reg];
+  const chg=p.chg, cls=chg>=0?"up":"down", sign=chg>=0?"+":"−";
+  const diff=p.pop-p.pop20;
+  const capLine = p.id===13
+    ? `${pinIcon()}<span>東京（都廳位於<b>新宿區</b>）<span class="reading">しんじゅくく</span></span>`
+    : `${pinIcon()}<span><b>${p.cap}</b> <span class="reading">${p.capKana}</span></span>`;
+  document.getElementById("card").innerHTML=`
+    <div class="eyebrow"><span class="badge" style="background:var(${r.c})">${r.n}</span><span class="num">No. ${String(p.id).padStart(2,"0")} / 47</span></div>
+    <div><h2>${p.name}</h2><div class="reading">${p.kana}・${p.en}</div></div>
+    <dl class="kv">
+      <dt>正式名稱</dt><dd>${p.name}</dd>
+      <dt>簡稱</dt><dd>${p.short}</dd>
+      <dt>廳所在地</dt><dd class="capital">${capLine}</dd>
+    </dl>
+    <div class="metric">
+      <div class="lab"><span>人口（2025 年 10 月 1 日）</span><span>全國第 <b class="num">${RANK_POP[p.id]}</b> 位</span></div>
+      <div class="big">${fmt(p.pop)}<small>人</small></div>
+      <div class="sub">約 ${man(p.pop)} 萬人・佔全國 <span class="num">${(p.pop/TOT_POP*100).toFixed(1)}%</span>・
+        <span class="chg ${cls}">較 2020 年 ${sign}${Math.abs(chg).toFixed(1)}%（${diff>=0?"+":"−"}${fmt(Math.abs(diff))} 人）</span></div>
+      <div class="bar" aria-hidden="true"><i style="width:${(p.pop/MAX_POP*100).toFixed(1)}%"></i></div>
+    </div>
+    <div class="metric">
+      <div class="lab"><span>名目縣內生產總值（2023 年度）</span><span>全國第 <b class="num">${RANK_GDP[p.id]}</b> 位</span></div>
+      <div class="big">${cho(p.gdp)}<small>兆日圓</small></div>
+      <div class="sub">${oku(p.gdp)} 億日圓・佔全國 <span class="num">${(p.gdp/TOT_GDP*100).toFixed(1)}%</span></div>
+      <div class="bar" aria-hidden="true"><i style="width:${(p.gdp/MAX_GDP*100).toFixed(1)}%"></i></div>
+    </div>
+    <div class="nav"><button type="button" id="prev">‹ 上一個</button><button type="button" id="zoomTo">放大此處</button><button type="button" id="next">下一個 ›</button></div>`;
+  document.getElementById("prev").onclick=()=>select(selId===1?47:selId-1);
+  document.getElementById("next").onclick=()=>select(selId===47?1:selId+1);
+  document.getElementById("zoomTo").onclick=()=>select(selId,{zoom:true});
+}
+
+/* ---------- table ---------- */
+let sortK="id", sortDir=1, query="", regFilter=0;
+function buildTable(){
+  const tb=document.querySelector("#tbl tbody");
+  const q=query.trim().toLowerCase();
+  const rows=P.filter(p=>(!regFilter||p.reg===regFilter)&&(!q||[p.name,p.short,p.kana,p.en,p.cap,p.capKana].some(s=>s.toLowerCase().includes(q))));
+  const key={id:p=>p.id,name:p=>p.kana,short:p=>p.kana,en:p=>p.en,reg:p=>p.reg*100+p.id,cap:p=>p.capKana,pop:p=>p.pop,chg:p=>p.chg,gdp:p=>p.gdp}[sortK];
+  rows.sort((a,b)=>{const x=key(a),y=key(b);return (x<y?-1:x>y?1:0)*sortDir;});
+  tb.innerHTML=rows.map(p=>`<tr data-id="${p.id}" class="${p.id===selId?"sel":""}">
+    <td class="num">${String(p.id).padStart(2,"0")}</td>
+    <td><span class="sw" style="background:var(${REG[p.reg].c})"></span>${p.name}<span class="kana">${p.kana}</span></td>
+    <td>${p.short}</td><td>${p.en}</td><td>${REG[p.reg].n}</td>
+    <td>${p.id===13?"東京（新宿區）":p.cap}<span class="kana">${p.capKana}</span></td>
+    <td class="r num">${fmt(p.pop)}<span class="share"><i style="width:${(p.pop/MAX_POP*100).toFixed(1)}%"></i></span></td>
+    <td class="r num chg ${p.chg>=0?"up":"down"}">${p.chg>=0?"+":"−"}${Math.abs(p.chg).toFixed(1)}%</td>
+    <td class="r num">${cho(p.gdp)} 兆円<span class="share"><i style="width:${(p.gdp/MAX_GDP*100).toFixed(1)}%"></i></span></td></tr>`).join("")
+    || `<tr><td colspan="9" style="text-align:center;color:var(--ink-soft)">找不到符合「${query.replace(/[<>&]/g,"")}」的都道府縣</td></tr>`;
+  document.querySelectorAll("#tbl th").forEach(th=>th.setAttribute("aria-sort",th.dataset.k===sortK?(sortDir>0?"ascending":"descending"):"none"));
+  P.forEach(p=>p.g.classList.toggle("dim",!!regFilter&&p.reg!==regFilter));
+}
+function buildChips(){
+  const box=document.getElementById("regionChips");
+  const mk=(r,label,color)=>{const b=document.createElement("button");b.type="button";b.className="chip";b.dataset.r=r;b.setAttribute("aria-pressed",String(r===0));
+    b.innerHTML=(color?`<i style="background:var(${color})"></i>`:"")+label; box.appendChild(b);
+    b.onclick=()=>{regFilter=r;box.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(+c.dataset.r===r)));fitRegion(r);buildTable();};};
+  mk(0,"全國");
+  REG.forEach((r,i)=>{if(r)mk(i,r.n.replace("地方",""),r.c);});
+}
+function buildLegend(){
+  const t= mode==="pop"?`高度代表人口（最高：東京都 ${man(MAX_POP)} 萬人）`: mode==="gdp"?`高度代表名目 GDP（最高：東京都 ${cho(MAX_GDP)} 兆円）`:"平面模式：只看位置與地方";
+  document.getElementById("legend").innerHTML=`<div class="h">${t}</div><div class="rows">${REG.filter(Boolean).map(r=>`<span><i style="background:var(${r.c})"></i>${r.n.replace("地方","")}</span>`).join("")}</div>`;
+}
+
+/* ---------- events ---------- */
+function wire(){
+  const tip=document.getElementById("tip"), stage=document.getElementById("stage");
+  document.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>setMode(b.dataset.h));
+  const lb=document.getElementById("lblBtn");
+  lb.onclick=()=>{showLabels=!showLabels;lb.setAttribute("aria-pressed",String(showLabels));placePins();};
+  const vb=()=>svg.viewBox.baseVal;
+  document.getElementById("zin").onclick=()=>zoomAt(1.5,vb().width/2,vb().height/2);
+  document.getElementById("zout").onclick=()=>zoomAt(1/1.5,vb().width/2,vb().height/2);
+  document.getElementById("zreset").onclick=()=>animateView(1,0,0);
+  document.getElementById("q").addEventListener("input",e=>{query=e.target.value;buildTable();});
+  document.querySelectorAll("#tbl th button").forEach(b=>b.onclick=()=>{const k=b.parentElement.dataset.k; if(sortK===k)sortDir*=-1; else {sortK=k;sortDir=(k==="pop"||k==="gdp"||k==="chg")?-1:1;} buildTable();});
+  document.querySelector("#tbl tbody").addEventListener("click",e=>{const tr=e.target.closest("tr[data-id]"); if(!tr)return; select(+tr.dataset.id,{zoom:true});
+    if(matchMedia("(max-width:960px)").matches) stage.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});});
+
+  const idAt=e=>{const t=e.target.closest("[data-id]");return t?+t.dataset.id:0;};
+  svg.addEventListener("pointermove",e=>{
+    if(drag) return;
+    const id=idAt(e); if(!id){tip.classList.remove("on");return;}
+    const p=byId[id], r=stage.getBoundingClientRect();
+    tip.textContent=`${p.name}・${p.id===13?"新宿區":p.cap}`;
+    tip.style.left=(e.clientX-r.left)+"px"; tip.style.top=(e.clientY-r.top)+"px"; tip.classList.add("on");
+  });
+  svg.addEventListener("pointerleave",()=>tip.classList.remove("on"));
+
+  // pan + pinch
+  const pts=new Map(); let drag=null, moved=false, pinch=null;
+  svg.addEventListener("pointerdown",e=>{
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); svg.setPointerCapture(e.pointerId); moved=false;
+    if(pts.size===1){const s=svgPt(e.clientX,e.clientY);drag={sx:s.x,sy:s.y,tx:TX,ty:TY,cx:e.clientX,cy:e.clientY,target:idAt(e)};}
+    if(pts.size===2){const [a,b]=[...pts.values()];const m=svgPt((a.x+b.x)/2,(a.y+b.y)/2);pinch={d:Math.hypot(a.x-b.x,a.y-b.y),k:K,tx:TX,ty:TY,mx:m.x,my:m.y};drag=null;}
+  });
+  svg.addEventListener("pointermove",e=>{
+    if(!pts.has(e.pointerId))return; pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pinch&&pts.size===2){const [a,b]=[...pts.values()];const nk=Math.min(9,Math.max(1,pinch.k*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d));
+      const wx=(pinch.mx-pinch.tx)/pinch.k, wy=(pinch.my-pinch.ty)/pinch.k;[K,TX,TY]=clampView(nk,pinch.mx-wx*nk,pinch.my-wy*nk);applyView();moved=true;return;}
+    if(drag){ if(Math.hypot(e.clientX-drag.cx,e.clientY-drag.cy)>5){moved=true;svg.classList.add("dragging");tip.classList.remove("on");}
+      if(moved&&K>1){const s=svgPt(e.clientX,e.clientY);[K,TX,TY]=clampView(K,drag.tx+(s.x-drag.sx),drag.ty+(s.y-drag.sy));applyView();
+        // svgPt is in viewBox space (independent of world transform) so deltas map directly
+      }}
+  });
+  const end=e=>{
+    if(!pts.has(e.pointerId))return; pts.delete(e.pointerId);
+    if(drag&&!moved&&drag.target) select(drag.target);
+    if(pts.size<2) pinch=null;
+    if(pts.size===0){drag=null;svg.classList.remove("dragging");}
+  };
+  svg.addEventListener("pointerup",end); svg.addEventListener("pointercancel",end);
+  svg.addEventListener("wheel",e=>{e.preventDefault();const s=svgPt(e.clientX,e.clientY);zoomAt(Math.exp(-e.deltaY*0.0018),s.x,s.y,false);},{passive:false});
+
+  // keyboard: arrows move between prefectures when focus is on map
+  svg.tabIndex=0;
+  svg.addEventListener("keydown",e=>{
+    if(e.key==="ArrowRight"||e.key==="ArrowDown"){select(selId===47?1:selId+1);e.preventDefault();}
+    if(e.key==="ArrowLeft"||e.key==="ArrowUp"){select(selId===1?47:selId-1);e.preventDefault();}
+    if(e.key==="+"||e.key==="="){zoomAt(1.5,500,345);} if(e.key==="-"){zoomAt(1/1.5,500,345);}
+  });
+}
+
+fetch("geo.json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(g=>{init(g);select(13);})
+  .catch(()=>{document.getElementById("stage").innerHTML='<div class="err">地圖邊界資料未能載入，請重新整理頁面。下方表格仍可查看全部 47 個都道府縣。</div>';
+    buildCardFallback();});
+function buildCardFallback(){P.forEach(p=>p.g=document.createElement("g"));buildCard();buildTable();}
+</script>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 立體可愛地理地圖・三強同題實測展</title>
+  <meta name="description" content="以完全相同 Prompt 實測 Gemini 4 Neon (High)、Claude Opus 5.5 (High) 與 GPT-6.2 Astra (High) 生成的互動式日本與中國立體可愛地圖，原檔完整上線供親身體驗對比。" />
+  <style>
+    :root {
+      --bg: #FAF8F3;
+      --card: #FFFFFF;
+      --ink: #2E2A27;
+      --muted: #6B625B;
+      --line: #E6DDD1;
+      --border: #5C4B41;
+      --shadow: #E0D2C0;
+      --gemini: #4F7CFF;
+      --gemini-bg: #EEF3FF;
+      --claude: #D97757;
+      --claude-bg: #FDF1EC;
+      --gpt: #10A37F;
+      --gpt-bg: #EAF8F3;
+      --font: "PingFang TC", "Hiragino Sans TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: radial-gradient(circle at 12% 10%, #E9F6FF 0%, transparent 40%),
+                  radial-gradient(circle at 88% 15%, #FFF1E6 0%, transparent 42%),
+                  var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      padding: 28px 18px 64px;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    /* Hero */
+    .hero {
+      background: var(--card);
+      border: 2.5px solid var(--border);
+      border-radius: 26px;
+      padding: 32px 30px;
+      box-shadow: 0 6px 0 var(--shadow), 0 16px 36px rgba(60, 45, 35, 0.08);
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #FFF3D6;
+      color: #8F5200;
+      border: 1.5px solid #E2BD72;
+      border-radius: 999px;
+      padding: 4px 12px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 900;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .lead {
+      font-size: 15.5px;
+      color: var(--muted);
+      max-width: 78ch;
+      margin-bottom: 18px;
+    }
+
+    .prompt-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .prompt-box {
+      background: #FCF9F2;
+      border: 1.5px dashed #CEBDA9;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 13px;
+    }
+
+    .prompt-box strong {
+      display: block;
+      font-size: 12px;
+      color: #8C4A19;
+      margin-bottom: 4px;
+    }
+
+    /* Section */
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 34px 0 14px;
+    }
+
+    .section-head h2 {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .section-note {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .cards.two-col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 2.5px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 5px 0 var(--shadow), 0 10px 24px rgba(60, 45, 35, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0 var(--shadow), 0 16px 32px rgba(60, 45, 35, 0.10);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .model-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 900;
+      padding: 4px 11px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+    }
+
+    .model-pill.gemini { background: var(--gemini-bg); color: #1E47B8; }
+    .model-pill.claude { background: var(--claude-bg); color: #A6401E; }
+    .model-pill.gpt { background: var(--gpt-bg); color: #0B6B52; }
+
+    .tag-raw {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      background: #F4EFE6;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+
+    .card p {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .highlights {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      padding-top: 4px;
+      border-top: 1.5px dashed #E8DDD0;
+    }
+
+    .highlights li {
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+    }
+
+    .cta-wrap {
+      margin-top: auto;
+      padding-top: 8px;
+    }
+
+    .btn-open {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--ink);
+      background: linear-gradient(180deg, #FFE8A3, #FFD36E);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      box-shadow: 0 3px 0 #C89328;
+      transition: transform 0.14s ease, filter 0.14s ease;
+    }
+
+    .btn-open:hover {
+      filter: brightness(1.03);
+      transform: translateY(-1px);
+    }
+
+    .btn-open.secondary {
+      background: linear-gradient(180deg, #FBF8F1, #F1E9DB);
+      box-shadow: 0 3px 0 #C9B9A5;
+    }
+
+    /* Comparison table */
+    .table-card {
+      background: var(--card);
+      border: 2.5px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 5px 0 var(--shadow);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+      font-size: 13.5px;
+    }
+
+    th, td {
+      padding: 11px 12px;
+      border-bottom: 1.5px solid #EFE7DC;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #FCF7ED;
+      font-weight: 900;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    td:first-child {
+      font-weight: 800;
+      white-space: nowrap;
+      color: #5C4B41;
+    }
+
+    .footer {
+      margin-top: 34px;
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 920px) {
+      .cards, .cards.two-col, .prompt-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero { padding: 22px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <div class="eyebrow">🗺️ AI Interactive Map Benchmark · 原檔無修改公開展示</div>
+      <h1>AI 立體可愛地理地圖・三強同題實測展</h1>
+      <p class="lead">
+        為了讓大家親身感受不同頂尖 AI 模型在「產品思維、地理教學深度、視覺美感與前端工程」上的差異，我們以<strong>完全相同的中文 Prompt</strong> 測試了
+        <strong>Gemini 4 Neon (High)</strong>、<strong>Claude Opus 5.5 (High)</strong> 與 <strong>GPT-6.2 Astra (High)</strong>，並將所有生成的原始網頁一字未改全部放上線，歡迎親手點擊、縮放、體驗與評價！
+      </p>
+      <div class="prompt-grid">
+        <div class="prompt-box">
+          <strong>🇯🇵 日本版同題 Prompt（三模型完全一致）</strong>
+          「請開發一個日本地圖，有齊所有日本都道府縣的正名、簡稱、最新官方的人口數目、官方gdp，以及都道府縣廳城市名稱，以及以圖釘標示位置，給大學一年級學生了解日本地理。以isometric map 及可愛風格呈現」
+        </div>
+        <div class="prompt-box">
+          <strong>🇨🇳 中國版同題 Prompt（雙模型完全一致）</strong>
+          「請開發一個中國地圖，有齊所有中國省份的正名、簡稱、最新官方的人口數目、官方gdp，以及省會城市名稱，以及以圖訂標示位置，給大學一年級學生了解中國地理。以isometric map 及可愛風格呈現」
+        </div>
+      </div>
+    </header>
+
+    <!-- 日本 47 都道府縣三強正面對決 -->
+    <div class="section-head">
+      <h2>🇯🇵 日本 47 都道府縣・三強同題正面對決</h2>
+      <span class="section-note">完全相同 Prompt · 原檔直接體驗</span>
+    </div>
+
+    <section class="cards">
+      <article class="card">
+        <div class="card-top">
+          <span class="model-pill gemini">✦ Gemini 4 Neon (High)</span>
+          <span class="tag-raw">多檔模組化</span>
+        </div>
+        <h3>日本地理・立體可愛地圖</h3>
+        <p>兼顧真 2.5D 立體積木高度、和風可愛地標插畫，以及專為大一學生打造的地理教具與互動測驗。</p>
+        <ul class="highlights">
+          <li><span>🎨</span><span>真 2.5D 等軸測受光側壁＋點選浮起＋人口／GDP 3D 高度柱狀切換</span></li>
+          <li><span>🌋</span><span>內建「糸魚川—靜岡構造線（50Hz/60Hz）」「太平洋工業帶」與 18 異名縣廳必考提示</span></li>
+          <li><span>🎯</span><span>4 模式隨堂小測驗（含盲點地圖測驗防破題）＋舊令制國名＋手繪富士山／沖繩 3D 互動插圖</span></li>
+        </ul>
+        <div class="cta-wrap">
+          <a class="btn-open" href="https://johnson-greate.github.io/japan-isometric-cute-map/" target="_blank" rel="noopener">
+            🚀 開啟 Gemini 4 Neon 日本版 ↗
+          </a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <span class="model-pill claude">◆ Claude Opus 5.5 (High)</span>
+          <span class="tag-raw">原檔未修改</span>
+        </div>
+        <h3>日本都道府縣立體地圖</h3>
+        <p>極度俐落的數據儀表板風格，擁有絲滑 3D 高度切換補間動畫、2025 國勢調查人口變化率與深色模式。</p>
+        <ul class="highlights">
+          <li><span>📐</span><span>真 2.5D 雙色側壁擠出，平面／人口／GDP 高度切換具備 650ms 流暢補間動畫</span></li>
+          <li><span>📊</span><span>收錄 2025 國勢調查（含對比 2020 人口增減%）與 2023 年度名目 GDP</span></li>
+          <li><span>🌗</span><span>支援自動深色模式、雙指捏合縮放與完整 47 列可排序總表</span></li>
+        </ul>
+        <div class="cta-wrap">
+          <a class="btn-open secondary" href="./claude-opus-55-japan/index.html" target="_blank" rel="noopener">
+            🔍 開啟 Claude Opus 5.5 日本版 ↗
+          </a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <span class="model-pill gpt">● GPT-6.2 Astra (High)</span>
+          <span class="tag-raw">原檔未修改</span>
+        </div>
+        <h3>日本列島圖鑑 · 旅圖研究室</h3>
+        <p>出版級博物誌與明信片美學，內建可愛柴犬探險家插畫與極度嚴謹的一手官方統計原始連結。</p>
+        <ul class="highlights">
+          <li><span>🐕</span><span>原創手繪風柴犬領航員、渡輪、山峰、富士山與各地方特色明信片插圖</span></li>
+          <li><span>📚</span><span>採用 2026.01.01 住民基本台帳人口與 2023 年度 GDP，附 e-Stat／內閣府原表連結</span></li>
+          <li><span>🧭</span><span>單檔零依賴，內建八大地方聚焦縮放與 47 都道府縣對照表</span></li>
+        </ul>
+        <div class="cta-wrap">
+          <a class="btn-open secondary" href="./gpt-62-astra-japan/index.html" target="_blank" rel="noopener">
+            🔍 開啟 GPT-6.2 Astra 日本版 ↗
+          </a>
+        </div>
+      </article>
+    </section>
+
+    <!-- 中國 34 省級行政區雙強對決 -->
+    <div class="section-head">
+      <h2>🇨🇳 中國 34 省級行政區・雙強同題對決</h2>
+      <span class="section-note">完全相同 Prompt · 2025 官方最新數據</span>
+    </div>
+
+    <section class="cards two-col">
+      <article class="card">
+        <div class="card-top">
+          <span class="model-pill gemini">✦ Gemini 4 Neon (High)</span>
+          <span class="tag-raw">多檔模組化</span>
+        </div>
+        <h3>中國地理・立體可愛地圖</h3>
+        <p>將 2.5D 立體積木、2025 官方數據視覺化與大一中國地理教學深度整合的互動圖鑑。</p>
+        <ul class="highlights">
+          <li><span>🏗️</span><span>真 2.5D 擠出側壁＋點選積木立體拔起＋人口 3D / GDP 3D 高度柱狀圖</span></li>
+          <li><span>📐</span><span>一鍵疊加「胡煥庸線（黑河—騰衝線）」、七大分區總計、簡稱由來與三大地形階梯</span></li>
+          <li><span>🎯</span><span>4 模式隨堂小測驗（含地圖點擊找省份）＋京津／上海／港澳海上快捷導引標籤</span></li>
+        </ul>
+        <div class="cta-wrap">
+          <a class="btn-open" href="https://johnson-greate.github.io/china-isometric-cute-map/" target="_blank" rel="noopener">
+            🚀 開啟 Gemini 4 Neon 中國版 ↗
+          </a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <span class="model-pill gpt">● GPT-6.2 Astra (High)</span>
+          <span class="tag-raw">原檔未修改</span>
+        </div>
+        <h3>山河圖鑑｜中國地理探索</h3>
+        <p>典雅山林色系的出版級互動圖鑑，具備逐省 2025 官方統計公報出處連結與書籤收藏功能。</p>
+        <ul class="highlights">
+          <li><span>📖</span><span>每省皆附 2025 官方統計局公報連結與統計口徑說明，學術考據極為細緻</span></li>
+          <li><span>🖼️</span><span>卡片頂部繪製各省專屬輪廓明信片插圖，支援「我的收藏」書籤複習</span></li>
+          <li><span>📍</span><span>全 34 省圖釘與京津／上海／港澳引線標註，單檔結構完整</span></li>
+        </ul>
+        <div class="cta-wrap">
+          <a class="btn-open secondary" href="./gpt-62-astra-china/index.html" target="_blank" rel="noopener">
+            🔍 開啟 GPT-6.2 Astra 中國版 ↗
+          </a>
+        </div>
+      </article>
+    </section>
+
+    <!-- 客觀維度橫比表 -->
+    <div class="section-head">
+      <h2>📊 日本版三強同題客觀對照表</h2>
+      <span class="section-note">各有擅長，交由看倌親自評分</span>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>評比維度</th>
+            <th>✦ Gemini 4 Neon (High)</th>
+            <th>◆ Claude Opus 5.5 (High)</th>
+            <th>● GPT-6.2 Astra (High)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Isometric 3D 深度</td>
+            <td>✅ 真 2.5D 受光側壁＋點選積木浮起＋人口／GDP 3D 高度柱狀圖＋互動 3D 沖繩插圖</td>
+            <td>✅ 真 2.5D 雙色側壁＋650ms 絲滑補間高度動畫（平面／人口／GDP 切換）</td>
+            <td>🟡 靜態雙層薄片假陰影（無 3D 高度數據視覺化與積木浮起）</td>
+          </tr>
+          <tr>
+            <td>可愛繪本視覺</td>
+            <td>✅ 粉彩和菓子配色＋手繪富士山、小熊、雪人、小鹿、鳥居、溫泉、帆船與飄雲</td>
+            <td>🟡 清爽現代圓角風＋3 朵飄雲＋跳動圖釘（偏簡約數據儀表板，支援深色模式）</td>
+            <td>✅ 博物誌出版級插畫（原創柴犬探險家、復古郵戳、渡輪、明信片）</td>
+          </tr>
+          <tr>
+            <td>最新官方數據</td>
+            <td>✅ 2024.10 總務省人口推計＋內閣府縣民經濟計算確報（含排名與人均 GDP）</td>
+            <td>✅ 2025 國勢調查（含對比 2020 增減%）＋2023 年度 GDP（更新極快！）</td>
+            <td>✅ 2026.01.01 住民基本台帳＋2023 年度 GDP＋附 e-Stat／內閣府原表連結</td>
+          </tr>
+          <tr>
+            <td>大一地理教學深度</td>
+            <td>✅ <strong>大幅領先</strong>：構造線、太平洋工業帶、18 異名縣廳考點、舊令制國名、氣候地形筆記、<strong>4 模式隨堂測驗</strong></td>
+            <td>🟡 僅提供基本數據與可排序表，未設計地理脈絡解說、主題線或互動測驗</td>
+            <td>🟡 僅提供基本數據與一覽表，未設計地理脈絡解說、主題線或互動測驗</td>
+          </tr>
+          <tr>
+            <td>高密度區點擊體驗</td>
+            <td>✅ 47 實體圖釘＋關東／關西／四國海上快捷導引標籤，縮放自動展開全標籤</td>
+            <td>🟡 1x 總覽時 47 個標籤同時重疊於都會區，需手動縮放點選</td>
+            <td>🟡 都會區僅顯示單一選中標籤與小圓釘，需放大查看鄰近縣市</td>
+          </tr>
+          <tr>
+            <td>離線開檔／架構</td>
+            <td>✅ 模組化多檔，支援直接雙擊 <code>index.html</code> 離線開啟，零依賴秒開</td>
+            <td>🟡 使用 <code>fetch("geo.json")</code>，本機直接雙擊開檔會受 CORS 阻擋（需 HTTP 伺服器）</td>
+            <td>✅ 單檔內嵌零依賴，支援直接雙擊開啟</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="footer">
+      本展示頁由 <strong>johnson-greate</strong> 建立並託管於 GitHub Pages · 所有對照模型成品皆保留原始程式碼未作修改，僅供技術交流與教學評估參考。
+    </footer>
+  </div>
+</body>
+</html>
