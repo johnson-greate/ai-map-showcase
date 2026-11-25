@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +21,14 @@
       --gpt: #10A37F;
       --gpt-bg: #EAF8F3;
       --font: "PingFang TC", "Hiragino Sans TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    }
+
+    html[lang="zh-CN"] {
+      --font: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    html[lang="en"] {
+      --font: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,9 +53,18 @@
       background: var(--card);
       border: 2.5px solid var(--border);
       border-radius: 26px;
-      padding: 32px 30px;
+      padding: 28px 30px 30px;
       box-shadow: 0 6px 0 var(--shadow), 0 16px 36px rgba(60, 45, 35, 0.08);
       margin-bottom: 28px;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
     .eyebrow {
@@ -56,14 +73,60 @@
       gap: 8px;
       font-size: 12px;
       font-weight: 800;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       background: #FFF3D6;
       color: #8F5200;
       border: 1.5px solid #E2BD72;
       border-radius: 999px;
-      padding: 4px 12px;
-      margin-bottom: 12px;
+      padding: 5px 13px;
+    }
+
+    /* Language Selector */
+    .lang-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #F6F1E7;
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      padding: 4px;
+      box-shadow: 0 3px 0 #DDD0BE;
+    }
+
+    .lang-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      padding: 0 6px 0 8px;
+      user-select: none;
+    }
+
+    .lang-btn {
+      appearance: none;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .lang-btn:hover {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .lang-btn.active {
+      background: linear-gradient(180deg, #FFE8A3, #FFD36E);
+      color: var(--ink);
+      border-color: var(--border);
+      box-shadow: 0 2px 0 #C89328;
     }
 
     h1 {
@@ -102,6 +165,13 @@
       margin-bottom: 4px;
     }
 
+    .prompt-note {
+      display: block;
+      margin-top: 6px;
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
     /* Section */
     .section-head {
       display: flex;
@@ -127,10 +197,6 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 18px;
-    }
-
-    .cards.two-col {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .card {
@@ -161,11 +227,12 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 900;
-      padding: 4px 11px;
+      padding: 4px 10px;
       border-radius: 999px;
       border: 1.5px solid var(--border);
+      white-space: nowrap;
     }
 
     .model-pill.gemini { background: var(--gemini-bg); color: #1E47B8; }
@@ -179,6 +246,7 @@
       background: #F4EFE6;
       padding: 2px 8px;
       border-radius: 999px;
+      white-space: nowrap;
     }
 
     .card h3 {
@@ -286,55 +354,75 @@
     }
 
     @media (max-width: 920px) {
-      .cards, .cards.two-col, .prompt-grid {
+      .cards, .prompt-grid {
         grid-template-columns: 1fr;
       }
       .hero { padding: 22px 18px; }
+      .lang-bar {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .lang-btn {
+        flex: 1;
+        text-align: center;
+        padding: 6px 8px;
+      }
+      .lang-label { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header class="hero">
-      <div class="eyebrow">🗺️ AI Interactive Map Benchmark · 原檔無修改公開展示</div>
-      <h1>AI 立體可愛地理地圖・三強同題實測展</h1>
-      <p class="lead">
+      <div class="hero-top">
+        <div class="eyebrow" data-i18n="eyebrow">🗺️ AI Interactive Map Benchmark · 原檔無修改公開展示</div>
+        <div class="lang-bar" role="group" aria-label="Language selector">
+          <span class="lang-label" aria-hidden="true">🌐</span>
+          <button type="button" class="lang-btn active" data-lang="zh-TW" aria-pressed="true">繁體中文</button>
+          <button type="button" class="lang-btn" data-lang="zh-CN" aria-pressed="false">简体中文</button>
+          <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">English</button>
+        </div>
+      </div>
+      <h1 data-i18n="heroTitle">AI 立體可愛地理地圖・三強同題實測展</h1>
+      <p class="lead" data-i18n-html="heroLead">
         為了讓大家親身感受不同頂尖 AI 模型在「產品思維、地理教學深度、視覺美感與前端工程」上的差異，我們以<strong>完全相同的中文 Prompt</strong> 測試了
-        <strong>Gemini 4 Neon (High)</strong>、<strong>Claude Opus 5.5 (High)</strong> 與 <strong>GPT-6.2 Astra (High)</strong>，並將所有生成的原始網頁一字未改全部放上線，歡迎親手點擊、縮放、體驗與評價！
+        <strong>Gemini 4 Neon (High)</strong>、<strong>Claude Opus 5.5 (High)</strong> 與 <strong>GPT-6.2 Astra (High)</strong>，並將所有生成的原始網頁一字未改全部上線，歡迎大家親手點擊、縮放、體驗與評價！
       </p>
       <div class="prompt-grid">
         <div class="prompt-box">
-          <strong>🇯🇵 日本版同題 Prompt（三模型完全一致）</strong>
-          「請開發一個日本地圖，有齊所有日本都道府縣的正名、簡稱、最新官方的人口數目、官方gdp，以及都道府縣廳城市名稱，以及以圖釘標示位置，給大學一年級學生了解日本地理。以isometric map 及可愛風格呈現」
+          <strong data-i18n="promptJpLabel">🇯🇵 日本版同題 Prompt（三模型完全一致）</strong>
+          <span data-i18n="promptJpText">「請開發一個日本地圖，有齊所有日本都道府縣的正名、簡稱、最新官方的人口數目、官方gdp，以及都道府縣廳城市名稱，以及以圖釘標示位置，給大學一年級學生了解日本地理。以isometric map 及可愛風格呈現」</span>
+          <span class="prompt-note" data-i18n="promptNote" hidden></span>
         </div>
         <div class="prompt-box">
-          <strong>🇨🇳 中國版同題 Prompt（三模型完全一致）</strong>
-          「請開發一個中國地圖，有齊所有中國省份的正名、簡稱、最新官方的人口數目、官方gdp，以及省會城市名稱，以及以圖訂標示位置，給大學一年級學生了解中國地理。以isometric map 及可愛風格呈現」
+          <strong data-i18n="promptCnLabel">🇨🇳 中國版同題 Prompt（三模型完全一致）</strong>
+          <span data-i18n="promptCnText">「請開發一個中國地圖，有齊所有中國省份的正名、簡稱、最新官方的人口數目、官方gdp，以及省會城市名稱，以及以圖訂標示位置，給大學一年級學生了解中國地理。以isometric map 及可愛風格呈現」</span>
+          <span class="prompt-note" data-i18n="promptNote" hidden></span>
         </div>
       </div>
     </header>
 
     <!-- 日本 47 都道府縣三強正面對決 -->
     <div class="section-head">
-      <h2>🇯🇵 日本 47 都道府縣・三強同題正面對決</h2>
-      <span class="section-note">完全相同 Prompt · 原檔直接體驗</span>
+      <h2 data-i18n="secJpTitle">🇯🇵 日本 47 都道府縣・三強同題正面對決</h2>
+      <span class="section-note" data-i18n="secJpNote">完全相同 Prompt · 原檔直接體驗</span>
     </div>
 
     <section class="cards">
       <article class="card">
         <div class="card-top">
           <span class="model-pill gemini">✦ Gemini 4 Neon (High)</span>
-          <span class="tag-raw">多檔模組化</span>
+          <span class="tag-raw" data-i18n="tagModular">多檔模組化</span>
         </div>
-        <h3>日本地理・立體可愛地圖</h3>
-        <p>兼顧真 2.5D 立體積木高度、和風可愛地標插畫，以及專為大一學生打造的地理教具與互動測驗。</p>
+        <h3 data-i18n="jpGemTitle">日本地理・立體可愛地圖</h3>
+        <p data-i18n="jpGemDesc">兼顧真 2.5D 立體積木高度、和風可愛地標插畫，以及專為大一學生打造的地理教具與互動測驗。</p>
         <ul class="highlights">
-          <li><span>🎨</span><span>真 2.5D 等軸測受光側壁＋點選浮起＋人口／GDP 3D 高度柱狀切換</span></li>
-          <li><span>🌋</span><span>內建「糸魚川—靜岡構造線（50Hz/60Hz）」「太平洋工業帶」與 18 異名縣廳必考提示</span></li>
-          <li><span>🎯</span><span>4 模式隨堂小測驗（含盲點地圖測驗防破題）＋舊令制國名＋手繪富士山／沖繩 3D 互動插圖</span></li>
+          <li><span>🎨</span><span data-i18n="jpGemB1">真 2.5D 等軸測受光側牆＋點選浮起＋人口／GDP 3D 高度柱狀切換</span></li>
+          <li><span>🌋</span><span data-i18n="jpGemB2">內建「糸魚川—靜岡構造線（50Hz/60Hz）」「太平洋工業帶」與 18 個異名縣廳必考提示</span></li>
+          <li><span>🎯</span><span data-i18n="jpGemB3">4 模式隨堂小測驗（含盲圖點擊測驗）＋舊令制國名＋手繪富士山／沖繩 3D 互動插框</span></li>
         </ul>
         <div class="cta-wrap">
-          <a class="btn-open" href="https://johnson-greate.github.io/japan-isometric-cute-map/" target="_blank" rel="noopener">
+          <a class="btn-open" href="https://johnson-greate.github.io/japan-isometric-cute-map/" target="_blank" rel="noopener" data-i18n="jpGemCta">
             🚀 開啟 Gemini 4 Neon 日本版 ↗
           </a>
         </div>
@@ -343,17 +431,17 @@
       <article class="card">
         <div class="card-top">
           <span class="model-pill claude">◆ Claude Opus 5.5 (High)</span>
-          <span class="tag-raw">原檔未修改</span>
+          <span class="tag-raw" data-i18n="tagRaw">原檔未修改</span>
         </div>
-        <h3>日本都道府縣立體地圖</h3>
-        <p>極度俐落的數據儀表板風格，擁有絲滑 3D 高度切換補間動畫、2025 國勢調查人口變化率與深色模式。</p>
+        <h3 data-i18n="jpClaTitle">日本都道府縣立體地圖</h3>
+        <p data-i18n="jpClaDesc">極度俐落的數據儀表板風格，擁有滑順 3D 高度切換動畫、2025 國勢調查人口變化率與深色模式。</p>
         <ul class="highlights">
-          <li><span>📐</span><span>真 2.5D 雙色側壁擠出，平面／人口／GDP 高度切換具備 650ms 流暢補間動畫</span></li>
-          <li><span>📊</span><span>收錄 2025 國勢調查（含對比 2020 人口增減%）與 2023 年度名目 GDP</span></li>
-          <li><span>🌗</span><span>支援自動深色模式、雙指捏合縮放與完整 47 列可排序總表</span></li>
+          <li><span>📐</span><span data-i18n="jpClaB1">真 2.5D 雙色側牆擠出，平面／人口／GDP 高度切換具備 650ms 流暢補間動畫</span></li>
+          <li><span>📊</span><span data-i18n="jpClaB2">收錄 2025 國勢調查（含對比 2020 人口增減%）與 2023 年度名目 GDP</span></li>
+          <li><span>🌗</span><span data-i18n="jpClaB3">支援自動深色模式、雙指捏合縮放與完整 47 列可排序總表</span></li>
         </ul>
         <div class="cta-wrap">
-          <a class="btn-open secondary" href="./claude-opus-55-japan/index.html" target="_blank" rel="noopener">
+          <a class="btn-open secondary" href="./claude-opus-55-japan/index.html" target="_blank" rel="noopener" data-i18n="jpClaCta">
             🔍 開啟 Claude Opus 5.5 日本版 ↗
           </a>
         </div>
@@ -362,17 +450,17 @@
       <article class="card">
         <div class="card-top">
           <span class="model-pill gpt">● GPT-6.2 Astra (High)</span>
-          <span class="tag-raw">原檔未修改</span>
+          <span class="tag-raw" data-i18n="tagRaw">原檔未修改</span>
         </div>
-        <h3>日本列島圖鑑 · 旅圖研究室</h3>
-        <p>出版級博物誌與明信片美學，內建可愛柴犬探險家插畫與極度嚴謹的一手官方統計原始連結。</p>
+        <h3 data-i18n="jpGptTitle">日本列島圖鑑 · 旅圖研究室</h3>
+        <p data-i18n="jpGptDesc">出版級博物誌與明信片美學，內建可愛柴犬探險家插畫與極度嚴謹的一手官方統計原始連結。</p>
         <ul class="highlights">
-          <li><span>🐕</span><span>原創手繪風柴犬領航員、渡輪、山峰、富士山與各地方特色明信片插圖</span></li>
-          <li><span>📚</span><span>採用 2026.01.01 住民基本台帳人口與 2023 年度 GDP，附 e-Stat／內閣府原表連結</span></li>
-          <li><span>🧭</span><span>單檔零依賴，內建八大地方聚焦縮放與 47 都道府縣對照表</span></li>
+          <li><span>🐕</span><span data-i18n="jpGptB1">原創手繪風柴犬領航員、渡輪、山峰、富士山與各地方特色明信片插圖</span></li>
+          <li><span>📚</span><span data-i18n="jpGptB2">採用 2026.01.01 住民基本台帳人口與 2023 年度 GDP，附 e-Stat／內閣府原表連結</span></li>
+          <li><span>🧭</span><span data-i18n="jpGptB3">單一檔案零依賴，內建八大地方聚焦縮放與 47 都道府縣對照表</span></li>
         </ul>
         <div class="cta-wrap">
-          <a class="btn-open secondary" href="./gpt-62-astra-japan/index.html" target="_blank" rel="noopener">
+          <a class="btn-open secondary" href="./gpt-62-astra-japan/index.html" target="_blank" rel="noopener" data-i18n="jpGptCta">
             🔍 開啟 GPT-6.2 Astra 日本版 ↗
           </a>
         </div>
@@ -381,25 +469,25 @@
 
     <!-- 中國 34 省級行政區三強正面對決 -->
     <div class="section-head">
-      <h2>🇨🇳 中國 34 省級行政區・三強同題正面對決</h2>
-      <span class="section-note">完全相同 Prompt · 2025 官方最新數據</span>
+      <h2 data-i18n="secCnTitle">🇨🇳 中國 34 省級行政區・三強同題正面對決</h2>
+      <span class="section-note" data-i18n="secCnNote">完全相同 Prompt · 2025 官方最新數據</span>
     </div>
 
     <section class="cards">
       <article class="card">
         <div class="card-top">
           <span class="model-pill gemini">✦ Gemini 4 Neon (High)</span>
-          <span class="tag-raw">多檔模組化</span>
+          <span class="tag-raw" data-i18n="tagModular">多檔模組化</span>
         </div>
-        <h3>中國地理・立體可愛地圖</h3>
-        <p>將逐邊受光真 2.5D 積木、2025 官方數據 3D 視覺化與大一中國地理教學深度整合的互動圖鑑。</p>
+        <h3 data-i18n="cnGemTitle">中國地理・立體可愛地圖</h3>
+        <p data-i18n="cnGemDesc">將逐邊受光真 2.5D 積木、2025 官方數據 3D 視覺化與大一中國地理教學深度整合的互動圖鑑。</p>
         <ul class="highlights">
-          <li><span>🏗️</span><span>真 2.5D 受光側壁＋點選積木立體拔起＋人口 3D / GDP 3D 高度柱狀圖</span></li>
-          <li><span>📐</span><span>一鍵疊加「胡煥庸線（黑河—騰衝線）」、七大分區總計、簡稱由來與三大地形階梯</span></li>
-          <li><span>🎯</span><span>4 模式隨堂小測驗（綜合／猜簡稱／找省會／地圖盲點）＋京津／上海／港澳海上快捷導引卡</span></li>
+          <li><span>🏗️</span><span data-i18n="cnGemB1">真 2.5D 受光側牆＋點選積木立體拔起＋人口 3D / GDP 3D 高度柱狀圖</span></li>
+          <li><span>📐</span><span data-i18n="cnGemB2">一鍵疊加「胡煥庸線（黑河—騰衝線）」、七大分區統計、簡稱由來與三大地形階梯</span></li>
+          <li><span>🎯</span><span data-i18n="cnGemB3">4 模式隨堂小測驗（綜合／猜簡稱／找省會／盲圖點擊）＋京津／上海／港澳快捷導引卡</span></li>
         </ul>
         <div class="cta-wrap">
-          <a class="btn-open" href="https://johnson-greate.github.io/china-isometric-cute-map/" target="_blank" rel="noopener">
+          <a class="btn-open" href="https://johnson-greate.github.io/china-isometric-cute-map/" target="_blank" rel="noopener" data-i18n="cnGemCta">
             🚀 開啟 Gemini 4 Neon 中國版 ↗
           </a>
         </div>
@@ -408,17 +496,17 @@
       <article class="card">
         <div class="card-top">
           <span class="model-pill claude">◆ Claude Opus 5.5 (High)</span>
-          <span class="tag-raw">原檔未修改</span>
+          <span class="tag-raw" data-i18n="tagRaw">原檔未修改</span>
         </div>
-        <h3>中國省級行政區 · 等距立體小地圖</h3>
-        <p>互動玩法極為豐富！支援即時拖曳旋轉等距視角、人均 GDP 分級著色、立體數據柱與地圖找省小測驗。</p>
+        <h3 data-i18n="cnClaTitle">中國省級行政區 · 等距立體小地圖</h3>
+        <p data-i18n="cnClaDesc">互動玩法相當豐富！支援即時拖曳旋轉等距視角、人均 GDP 分級著色、立體數據柱與地圖找省小測驗。</p>
         <ul class="highlights">
-          <li><span>🧭</span><span>獨家可調「旋轉角度滑桿（-45°~0°）」與等距／俯視切換，搭配漂浮海洋展板</span></li>
-          <li><span>📊</span><span>支援地理分區／人口／GDP／人均 GDP 四種著色、立體圓柱開關與面積／人口密度估算</span></li>
-          <li><span>🎯</span><span>內建 10 題地圖小測驗（自動隱藏標籤＋答錯閃爍提示）與單檔零依賴可排序總表</span></li>
+          <li><span>🧭</span><span data-i18n="cnClaB1">獨家可調「旋轉角度滑桿（-45°~0°）」與等距／俯視切換，搭配漂浮海洋展板</span></li>
+          <li><span>📊</span><span data-i18n="cnClaB2">支援地理分區／人口／GDP／人均 GDP 四種著色、立體圓柱開關與面積／人口密度估算</span></li>
+          <li><span>🎯</span><span data-i18n="cnClaB3">內建 10 題地圖小測驗（自動隱藏標籤＋答錯閃爍提示）與單檔零依賴可排序總表</span></li>
         </ul>
         <div class="cta-wrap">
-          <a class="btn-open secondary" href="./claude-opus-55-china/index.html" target="_blank" rel="noopener">
+          <a class="btn-open secondary" href="./claude-opus-55-china/index.html" target="_blank" rel="noopener" data-i18n="cnClaCta">
             🔍 開啟 Claude Opus 5.5 中國版 ↗
           </a>
         </div>
@@ -427,17 +515,17 @@
       <article class="card">
         <div class="card-top">
           <span class="model-pill gpt">● GPT-6.2 Astra (High)</span>
-          <span class="tag-raw">原檔未修改</span>
+          <span class="tag-raw" data-i18n="tagRaw">原檔未修改</span>
         </div>
-        <h3>山河圖鑑｜中國地理探索</h3>
-        <p>典雅山林色系的出版級互動圖鑑，具備逐省 2025 官方統計公報出處連結與書籤收藏功能。</p>
+        <h3 data-i18n="cnGptTitle">山河圖鑑｜中國地理探索</h3>
+        <p data-i18n="cnGptDesc">典雅山林色系的出版級互動圖鑑，具備逐省 2025 官方統計公報出處連結與書籤收藏功能。</p>
         <ul class="highlights">
-          <li><span>📖</span><span>每省皆附 2025 官方統計局公報連結與統計口徑說明，學術考據極為細緻</span></li>
-          <li><span>🖼️</span><span>卡片頂部繪製各省專屬輪廓明信片插圖，支援「我的收藏」書籤複習</span></li>
-          <li><span>📍</span><span>全 34 省圖釘與京津／上海／港澳引線標註，單檔結構完整</span></li>
+          <li><span>📖</span><span data-i18n="cnGptB1">每省皆附 2025 官方統計局公報連結與統計口徑說明，學術考據極為細緻</span></li>
+          <li><span>🖼️</span><span data-i18n="cnGptB2">卡片頂部繪製各省專屬輪廓明信片插圖，支援「我的收藏」書籤複習</span></li>
+          <li><span>📍</span><span data-i18n="cnGptB3">全 34 省圖釘與京津／上海／港澳引線標註，單一檔案結構完整</span></li>
         </ul>
         <div class="cta-wrap">
-          <a class="btn-open secondary" href="./gpt-62-astra-china/index.html" target="_blank" rel="noopener">
+          <a class="btn-open secondary" href="./gpt-62-astra-china/index.html" target="_blank" rel="noopener" data-i18n="cnGptCta">
             🔍 開啟 GPT-6.2 Astra 中國版 ↗
           </a>
         </div>
@@ -446,15 +534,15 @@
 
     <!-- 客觀維度橫比表 -->
     <div class="section-head">
-      <h2>📊 3×2 六強全席・客觀維度橫比總表</h2>
-      <span class="section-note">中國 ＋ 日本雙場實測綜合表現，交由看倌親自評分</span>
+      <h2 data-i18n="secTblTitle">📊 3×2 六強全席・客觀維度橫比總表</h2>
+      <span class="section-note" data-i18n="secTblNote">中國 ＋ 日本雙場實測綜合表現，歡迎大家親自評分</span>
     </div>
 
     <div class="table-card">
       <table>
         <thead>
           <tr>
-            <th>評比維度</th>
+            <th data-i18n="tblColDim">評比維度</th>
             <th>✦ Gemini 4 Neon (High)</th>
             <th>◆ Claude Opus 5.5 (High)</th>
             <th>● GPT-6.2 Astra (High)</th>
@@ -462,42 +550,341 @@
         </thead>
         <tbody>
           <tr>
-            <td>Isometric 3D 表現</td>
-            <td>✅ 中日雙版皆為<strong>真 2.5D 逐邊受光側壁</strong>＋點選浮起＋依人口／GDP 讓版塊真實 3D 凸起</td>
-            <td>✅ 日本版有 650ms 絲滑 3D 高度補間動畫；中國版有<strong>即時旋轉視角滑桿</strong>＋立體數據柱（側壁採分層堆疊）</td>
-            <td>🟡 中日雙版皆為靜態薄片位移假陰影，無動態 3D 數據高度或點選浮起</td>
+            <td data-i18n="row1Dim">Isometric 3D 表現</td>
+            <td data-i18n-html="row1Gem">✅ 中日雙版皆為<strong>真 2.5D 逐邊受光側牆</strong>＋點選浮起＋依人口／GDP 讓版塊真實 3D 長高</td>
+            <td data-i18n-html="row1Cla">✅ 日本版有 650ms 滑順 3D 高度補間動畫；中國版有<strong>即時旋轉視角滑桿</strong>＋立體數據柱（側牆採分層堆疊）</td>
+            <td data-i18n-html="row1Gpt">🟡 中日雙版皆為靜態薄片位移假陰影，無動態 3D 數據高度或點選浮起</td>
           </tr>
           <tr>
-            <td>可愛繪本視覺</td>
-            <td>✅ 兩版風格高度統一：粉彩黏土／木質積木＋富士山、熊貓、小鹿、小熊、帆船、飄雲與互動插圖</td>
-            <td>✅ 中國版粉嫩圓潤＋飄雲與 Emoji 景物很討喜；日本版較偏簡約現代數據儀表板（附深色模式）</td>
-            <td>✅ 兩版皆為出版級博物誌美學（原創柴犬探險家、復古郵戳、各省明信片），氣質最典雅</td>
+            <td data-i18n="row2Dim">可愛繪本視覺</td>
+            <td data-i18n-html="row2Gem">✅ 兩版風格高度統一：粉彩黏土／木質積木＋富士山、熊貓、小鹿、小熊、帆船、飄雲與互動插圖</td>
+            <td data-i18n-html="row2Cla">✅ 中國版粉嫩圓潤＋飄雲與 Emoji 景物很討喜；日本版較偏簡約現代數據儀表板（附深色模式）</td>
+            <td data-i18n-html="row2Gpt">✅ 兩版皆為出版級博物誌美學（原創柴犬探險家、復古郵戳、各省明信片），氣質最典雅</td>
           </tr>
           <tr>
-            <td>最新官方數據</td>
-            <td>✅ 中國 2025 最新官方數據；日本 2024.10 總務省人口推計＋內閣府確報 GDP（含排名與人均）</td>
-            <td>✅ 中國 2025 最新數據（含面積密度與統計口徑備註）；日本 2025 國勢調查（含增減%）＋2023 年度 GDP</td>
-            <td>✅ 中國 2025 逐省統計局公報原連結；日本 2026.01.01 住民基本台帳＋2023 年度 GDP 原表連結（考據最強）</td>
+            <td data-i18n="row3Dim">最新官方數據</td>
+            <td data-i18n-html="row3Gem">✅ 中國 2025 最新官方數據；日本 2024.10 總務省人口推計＋內閣府確報 GDP（含排名與人均）</td>
+            <td data-i18n-html="row3Cla">✅ 中國 2025 最新數據（含面積密度與統計口徑備註）；日本 2025 國勢調查（含增減%）＋2023 年度 GDP</td>
+            <td data-i18n-html="row3Gpt">✅ 中國 2025 逐省統計局公報原連結；日本 2026.01.01 住民基本台帳＋2023 年度 GDP 原表連結（考據最強）</td>
           </tr>
           <tr>
-            <td>大一地理教學深度</td>
-            <td>✅ <strong>兩場最完整</strong>：胡煥庸線、大地溝帶、太平洋工業帶、三大地形階梯、簡稱由來、舊國名、18 異名縣廳考點、兩版皆有 4 模式隨堂測驗</td>
-            <td>🟢 <strong>中國版很亮眼</strong>（含人均 GDP 視角、小知識與 10 題地圖測驗）；但日本版未附地理筆記、構造線或測驗，兩場落差較明顯</td>
-            <td>🟡 兩版皆以「精緻資料查閱圖鑑＋收藏書籤」為主，未加入地理結構主題線或互動測驗</td>
+            <td data-i18n="row4Dim">大一地理教學深度</td>
+            <td data-i18n-html="row4Gem">✅ <strong>兩場最完整</strong>：胡煥庸線、大地溝帶、太平洋工業帶、三大地形階梯、簡稱由來、舊國名、18 異名縣廳考點、兩版皆有 4 模式隨堂測驗</td>
+            <td data-i18n-html="row4Cla">🟢 <strong>中國版很亮眼</strong>（含人均 GDP 視角、小知識與 10 題地圖測驗）；但日本版未附地理筆記、構造線或測驗，兩場落差較明顯</td>
+            <td data-i18n-html="row4Gpt">🟡 兩版皆以「精緻資料查詢圖鑑＋收藏書籤」為主，未加入地理結構主題線或互動測驗</td>
           </tr>
           <tr>
-            <td>工程穩定度與細節</td>
-            <td>✅ 模組化多檔零依賴，雙擊即開；京津／港澳／關東關西海上快捷標籤防重疊；自行截圖視覺自檢修錯</td>
-            <td>🟢 中國版單檔零依賴完成度極高；日本版使用 <code>fetch("geo.json")</code> 本機雙擊會遇 CORS 限制</td>
-            <td>✅ 單檔內嵌零依賴，響應式與無障礙細節佳（唯中國版單檔達 1.15 MB）</td>
+            <td data-i18n="row5Dim">工程穩定度與細節</td>
+            <td data-i18n-html="row5Gem">✅ 模組化多檔零依賴，雙擊即開；京津／港澳／關東關西海上快捷標籤防重疊；自行截圖視覺自檢修錯</td>
+            <td data-i18n-html="row5Cla">🟢 中國版單檔零依賴完成度極高；日本版使用 <code>fetch("geo.json")</code> 本機雙擊會遇 CORS 限制</td>
+            <td data-i18n-html="row5Gpt">✅ 單一檔案內嵌零依賴，響應式與無障礙細節佳（唯中國版單檔達 1.15 MB）</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <footer class="footer">
+    <footer class="footer" data-i18n-html="footer">
       本展示頁由 <strong>johnson-greate</strong> 建立並託管於 GitHub Pages · 所有對照模型成品皆保留原始程式碼未作修改，僅供技術交流與教學評估參考。
     </footer>
   </div>
+
+  <script>
+    const I18N = {
+      "zh-TW": {
+        docTitle: "AI 立體可愛地理地圖・三強同題實測展",
+        docDesc: "以完全相同 Prompt 實測 Gemini 4 Neon (High)、Claude Opus 5.5 (High) 與 GPT-6.2 Astra (High) 生成的互動式日本與中國立體可愛地圖，原檔完整上線供親身體驗對比。",
+        eyebrow: "🗺️ AI Interactive Map Benchmark · 原檔無修改公開展示",
+        heroTitle: "AI 立體可愛地理地圖・三強同題實測展",
+        heroLead: "為了讓大家親身感受不同頂尖 AI 模型在「產品思維、地理教學深度、視覺美感與前端工程」上的差異，我們以<strong>完全相同的中文 Prompt</strong> 測試了 <strong>Gemini 4 Neon (High)</strong>、<strong>Claude Opus 5.5 (High)</strong> 與 <strong>GPT-6.2 Astra (High)</strong>，並將所有生成的原始網頁一字未改全部上線，歡迎大家親手點擊、縮放、體驗與評價！",
+        promptJpLabel: "🇯🇵 日本版同題 Prompt（三模型完全一致）",
+        promptJpText: "「請開發一個日本地圖，有齊所有日本都道府縣的正名、簡稱、最新官方的人口數目、官方gdp，以及都道府縣廳城市名稱，以及以圖釘標示位置，給大學一年級學生了解日本地理。以isometric map 及可愛風格呈現」",
+        promptCnLabel: "🇨🇳 中國版同題 Prompt（三模型完全一致）",
+        promptCnText: "「請開發一個中國地圖，有齊所有中國省份的正名、簡稱、最新官方的人口數目、官方gdp，以及省會城市名稱，以及以圖訂標示位置，給大學一年級學生了解中國地理。以isometric map 及可愛風格呈現」",
+        promptNote: "",
+        secJpTitle: "🇯🇵 日本 47 都道府縣・三強同題正面對決",
+        secJpNote: "完全相同 Prompt · 原檔直接體驗",
+        secCnTitle: "🇨🇳 中國 34 省級行政區・三強同題正面對決",
+        secCnNote: "完全相同 Prompt · 2025 官方最新數據",
+        secTblTitle: "📊 3×2 六強全席・客觀維度橫比總表",
+        secTblNote: "中國 ＋ 日本雙場實測綜合表現，歡迎大家親自評分",
+        tagModular: "多檔模組化",
+        tagRaw: "原檔未修改",
+        jpGemTitle: "日本地理・立體可愛地圖",
+        jpGemDesc: "兼顧真 2.5D 立體積木高度、和風可愛地標插畫，以及專為大一學生打造的地理教具與互動測驗。",
+        jpGemB1: "真 2.5D 等軸測受光側牆＋點選浮起＋人口／GDP 3D 高度柱狀切換",
+        jpGemB2: "內建「糸魚川—靜岡構造線（50Hz/60Hz）」「太平洋工業帶」與 18 個異名縣廳必考提示",
+        jpGemB3: "4 模式隨堂小測驗（含盲圖點擊測驗）＋舊令制國名＋手繪富士山／沖繩 3D 互動插框",
+        jpGemCta: "🚀 開啟 Gemini 4 Neon 日本版 ↗",
+        jpClaTitle: "日本都道府縣立體地圖",
+        jpClaDesc: "極度俐落的數據儀表板風格，擁有滑順 3D 高度切換動畫、2025 國勢調查人口變化率與深色模式。",
+        jpClaB1: "真 2.5D 雙色側牆擠出，平面／人口／GDP 高度切換具備 650ms 流暢補間動畫",
+        jpClaB2: "收錄 2025 國勢調查（含對比 2020 人口增減%）與 2023 年度名目 GDP",
+        jpClaB3: "支援自動深色模式、雙指捏合縮放與完整 47 列可排序總表",
+        jpClaCta: "🔍 開啟 Claude Opus 5.5 日本版 ↗",
+        jpGptTitle: "日本列島圖鑑 · 旅圖研究室",
+        jpGptDesc: "出版級博物誌與明信片美學，內建可愛柴犬探險家插畫與極度嚴謹的一手官方統計原始連結。",
+        jpGptB1: "原創手繪風柴犬領航員、渡輪、山峰、富士山與各地方特色明信片插圖",
+        jpGptB2: "採用 2026.01.01 住民基本台帳人口與 2023 年度 GDP，附 e-Stat／內閣府原表連結",
+        jpGptB3: "單一檔案零依賴，內建八大地方聚焦縮放與 47 都道府縣對照表",
+        jpGptCta: "🔍 開啟 GPT-6.2 Astra 日本版 ↗",
+        cnGemTitle: "中國地理・立體可愛地圖",
+        cnGemDesc: "將逐邊受光真 2.5D 積木、2025 官方數據 3D 視覺化與大一中國地理教學深度整合的互動圖鑑。",
+        cnGemB1: "真 2.5D 受光側牆＋點選積木立體拔起＋人口 3D / GDP 3D 高度柱狀圖",
+        cnGemB2: "一鍵疊加「胡煥庸線（黑河—騰衝線）」、七大分區統計、簡稱由來與三大地形階梯",
+        cnGemB3: "4 模式隨堂小測驗（綜合／猜簡稱／找省會／盲圖點擊）＋京津／上海／港澳快捷導引卡",
+        cnGemCta: "🚀 開啟 Gemini 4 Neon 中國版 ↗",
+        cnClaTitle: "中國省級行政區 · 等距立體小地圖",
+        cnClaDesc: "互動玩法相當豐富！支援即時拖曳旋轉等距視角、人均 GDP 分級著色、立體數據柱與地圖找省小測驗。",
+        cnClaB1: "獨家可調「旋轉角度滑桿（-45°~0°）」與等距／俯視切換，搭配漂浮海洋展板",
+        cnClaB2: "支援地理分區／人口／GDP／人均 GDP 四種著色、立體圓柱開關與面積／人口密度估算",
+        cnClaB3: "內建 10 題地圖小測驗（自動隱藏標籤＋答錯閃爍提示）與單檔零依賴可排序總表",
+        cnClaCta: "🔍 開啟 Claude Opus 5.5 中國版 ↗",
+        cnGptTitle: "山河圖鑑｜中國地理探索",
+        cnGptDesc: "典雅山林色系的出版級互動圖鑑，具備逐省 2025 官方統計公報出處連結與書籤收藏功能。",
+        cnGptB1: "每省皆附 2025 官方統計局公報連結與統計口徑說明，學術考據極為細緻",
+        cnGptB2: "卡片頂部繪製各省專屬輪廓明信片插圖，支援「我的收藏」書籤複習",
+        cnGptB3: "全 34 省圖釘與京津／上海／港澳引線標註，單一檔案結構完整",
+        cnGptCta: "🔍 開啟 GPT-6.2 Astra 中國版 ↗",
+        tblColDim: "評比維度",
+        row1Dim: "Isometric 3D 表現",
+        row1Gem: "✅ 中日雙版皆為<strong>真 2.5D 逐邊受光側牆</strong>＋點選浮起＋依人口／GDP 讓版塊真實 3D 長高",
+        row1Cla: "✅ 日本版有 650ms 滑順 3D 高度補間動畫；中國版有<strong>即時旋轉視角滑桿</strong>＋立體數據柱（側牆採分層堆疊）",
+        row1Gpt: "🟡 中日雙版皆為靜態薄片位移假陰影，無動態 3D 數據高度或點選浮起",
+        row2Dim: "可愛繪本視覺",
+        row2Gem: "✅ 兩版風格高度統一：粉彩黏土／木質積木＋富士山、熊貓、小鹿、小熊、帆船、飄雲與互動插圖",
+        row2Cla: "✅ 中國版粉嫩圓潤＋飄雲與 Emoji 景物很討喜；日本版較偏簡約現代數據儀表板（附深色模式）",
+        row2Gpt: "✅ 兩版皆為出版級博物誌美學（原創柴犬探險家、復古郵戳、各省明信片），氣質最典雅",
+        row3Dim: "最新官方數據",
+        row3Gem: "✅ 中國 2025 最新官方數據；日本 2024.10 總務省人口推計＋內閣府確報 GDP（含排名與人均）",
+        row3Cla: "✅ 中國 2025 最新數據（含面積密度與統計口徑備註）；日本 2025 國勢調查（含增減%）＋2023 年度 GDP",
+        row3Gpt: "✅ 中國 2025 逐省統計局公報原連結；日本 2026.01.01 住民基本台帳＋2023 年度 GDP 原表連結（考據最強）",
+        row4Dim: "大一地理教學深度",
+        row4Gem: "✅ <strong>兩場最完整</strong>：胡煥庸線、大地溝帶、太平洋工業帶、三大地形階梯、簡稱由來、舊國名、18 異名縣廳考點、兩版皆有 4 模式隨堂測驗",
+        row4Cla: "🟢 <strong>中國版很亮眼</strong>（含人均 GDP 視角、小知識與 10 題地圖測驗）；但日本版未附地理筆記、構造線或測驗，兩場落差較明顯",
+        row4Gpt: "🟡 兩版皆以「精緻資料查詢圖鑑＋收藏書籤」為主，未加入地理結構主題線或互動測驗",
+        row5Dim: "工程穩定度與細節",
+        row5Gem: "✅ 模組化多檔零依賴，雙擊即開；京津／港澳／關東關西海上快捷標籤防重疊；自行截圖視覺自檢修錯",
+        row5Cla: "🟢 中國版單檔零依賴完成度極高；日本版使用 <code>fetch(\"geo.json\")</code> 本機雙擊會遇 CORS 限制",
+        row5Gpt: "✅ 單一檔案內嵌零依賴，響應式與無障礙細節佳（唯中國版單檔達 1.15 MB）",
+        footer: "本展示頁由 <strong>johnson-greate</strong> 建立並託管於 GitHub Pages · 所有對照模型成品皆保留原始程式碼未作修改，僅供技術交流與教學評估參考。"
+      },
+      "zh-CN": {
+        docTitle: "AI 立体可爱地理地图・三强同题实测展",
+        docDesc: "以完全相同 Prompt 实测 Gemini 4 Neon (High)、Claude Opus 5.5 (High) 与 GPT-6.2 Astra (High) 生成的交互式日本与中国立体可爱地图，原文件完整上线供亲身体验对比。",
+        eyebrow: "🗺️ AI Interactive Map Benchmark · 原文件无修改公开展示",
+        heroTitle: "AI 立体可爱地理地图・三强同题实测展",
+        heroLead: "为了让大家亲身感受不同顶尖 AI 模型在“产品思维、地理教学深度、视觉美感与前端工程”上的差异，我们以<strong>完全相同的中文 Prompt</strong> 评测了 <strong>Gemini 4 Neon (High)</strong>、<strong>Claude Opus 5.5 (High)</strong> 与 <strong>GPT-6.2 Astra (High)</strong>，并将所有生成的原始网页一字未改全部上线，欢迎大家亲手点击、缩放、体验与评价！",
+        promptJpLabel: "🇯🇵 日本版同题 Prompt（三模型完全一致）",
+        promptJpText: "“请开发一个日本地图，有齐所有日本都道府县的正名、简称、最新官方的人口数目、官方gdp，以及都道府县厅城市名称，以及以图钉标示位置，给大学一年级学生了解日本地理。以isometric map 及可爱风格呈现”",
+        promptCnLabel: "🇨🇳 中国版同题 Prompt（三模型完全一致）",
+        promptCnText: "“请开发一个中国地图，有齐所有中国省份的正名、简称、最新官方的人口数目、官方gdp，以及省会城市名称，以及以图订标示位置，给大学一年级学生了解中国地理。以isometric map 及可爱风格呈现”",
+        promptNote: "注：实测提交时三模型均使用同一份繁体中文原句（未作修改）。",
+        secJpTitle: "🇯🇵 日本 47 都道府县・三强同题正面对决",
+        secJpNote: "完全相同 Prompt · 原文件直接体验",
+        secCnTitle: "🇨🇳 中国 34 省级行政区・三强同题正面对决",
+        secCnNote: "完全相同 Prompt · 2025 官方最新数据",
+        secTblTitle: "📊 3×2 六强全席・客观维度横比总表",
+        secTblNote: "中国 ＋ 日本双场实测综合表现，欢迎大家亲自评分",
+        tagModular: "多文件模块化",
+        tagRaw: "原文件未修改",
+        jpGemTitle: "日本地理・立体可爱地图",
+        jpGemDesc: "兼顾真 2.5D 立体积木高度、和风可爱地标插画，以及专为大一学生打造的地理教具与交互测验。",
+        jpGemB1: "真 2.5D 等轴测受光侧墙＋点击浮起＋人口／GDP 3D 高度柱状切换",
+        jpGemB2: "内置“糸鱼川—静冈构造线（50Hz/60Hz）”“太平洋工业带”与 18 个异名县厅必考提示",
+        jpGemB3: "4 模式随堂小测验（含盲图点击测验）＋旧令制国名＋手绘富士山／冲绳 3D 交互插框",
+        jpGemCta: "🚀 打开 Gemini 4 Neon 日本版 ↗",
+        jpClaTitle: "日本都道府县立体地图",
+        jpClaDesc: "极其利落的数据仪表盘风格，拥有丝滑 3D 高度切换动画、2025 国势调查人口变化率与深色模式。",
+        jpClaB1: "真 2.5D 双色侧墙挤出，平面／人口／GDP 高度切换具备 650ms 流畅补间动画",
+        jpClaB2: "收录 2025 国势调查（含对比 2020 人口增减%）与 2023 年度名义 GDP",
+        jpClaB3: "支持自动深色模式、双指捏合缩放与完整 47 行可排序总表",
+        jpClaCta: "🔍 打开 Claude Opus 5.5 日本版 ↗",
+        jpGptTitle: "日本列岛图鉴 · 旅图研究室",
+        jpGptDesc: "出版级博物志与明信片美学，内置可爱柴犬探险家插画与极为严谨的一手官方统计原始链接。",
+        jpGptB1: "原创手绘风柴犬领航员、渡轮、山峰、富士山与各地方特色明信片插图",
+        jpGptB2: "采用 2026.01.01 住民基本台账人口与 2023 年度 GDP，附 e-Stat／内阁府原表链接",
+        jpGptB3: "单文件零依赖，内置八大地方聚焦缩放与 47 都道府县对照表",
+        jpGptCta: "🔍 打开 GPT-6.2 Astra 日本版 ↗",
+        cnGemTitle: "中国地理・立体可爱地图",
+        cnGemDesc: "将逐边受光真 2.5D 积木、2025 官方数据 3D 可视化与大一中国地理教学深度整合的交互图鉴。",
+        cnGemB1: "真 2.5D 受光侧墙＋点击积木立体拔起＋人口 3D / GDP 3D 高度柱状图",
+        cnGemB2: "一键叠加“胡焕庸线（黑河—腾冲线）”、七大分区统计、简称由来与三大地形阶梯",
+        cnGemB3: "4 模式随堂小测验（综合／猜简称／找省会／盲图点击）＋京津／上海／港澳快捷导引卡",
+        cnGemCta: "🚀 打开 Gemini 4 Neon 中国版 ↗",
+        cnClaTitle: "中国省级行政区 · 等距立体小地图",
+        cnClaDesc: "交互玩法非常丰富！支持实时拖拽旋转等距视角、人均 GDP 分级着色、立体数据柱与地图找省小测验。",
+        cnClaB1: "独家可调“旋转角度滑块（-45°~0°）”与等距／俯视切换，搭配漂浮海洋展板",
+        cnClaB2: "支持地理分区／人口／GDP／人均 GDP 四种着色、立体圆柱开关与面积／人口密度估算",
+        cnClaB3: "内置 10 题地图小测验（自动隐藏标签＋答错闪烁提示）与单文件零依赖可排序总表",
+        cnClaCta: "🔍 打开 Claude Opus 5.5 中国版 ↗",
+        cnGptTitle: "山河图鉴｜中国地理探索",
+        cnGptDesc: "典雅山林色系的出版级交互图鉴，具备逐省 2025 官方统计公报出处链接与书签收藏功能。",
+        cnGptB1: "每省均附 2025 官方统计局公报链接与统计口径说明，学术考据极为细致",
+        cnGptB2: "卡片顶部绘制各省专属轮廓明信片插图，支持“我的收藏”书签复习",
+        cnGptB3: "全 34 省图钉与京津／上海／港澳引线标注，单文件结构完整",
+        cnGptCta: "🔍 打开 GPT-6.2 Astra 中国版 ↗",
+        tblColDim: "评比维度",
+        row1Dim: "Isometric 3D 表现",
+        row1Gem: "✅ 中日双版均为<strong>真 2.5D 逐边受光侧墙</strong>＋点击浮起＋按人口／GDP 让板块真实 3D 长高",
+        row1Cla: "✅ 日本版有 650ms 丝滑 3D 高度补间动画；中国版有<strong>实时旋转视角滑块</strong>＋立体数据柱（侧墙采用分层堆叠）",
+        row1Gpt: "🟡 中日双版均为静态薄片位移假阴影，无动态 3D 数据高度或点击浮起",
+        row2Dim: "可爱绘本视觉",
+        row2Gem: "✅ 两版风格高度统一：粉彩黏土／木质积木＋富士山、熊猫、小鹿、小熊、帆船、飘云与交互插图",
+        row2Cla: "✅ 中国版粉嫩圆润＋飘云与 Emoji 景物很讨喜；日本版更偏简约现代数据仪表盘（附深色模式）",
+        row2Gpt: "✅ 两版均为出版级博物志美学（原创柴犬探险家、复古邮戳、各省明信片），气质最典雅",
+        row3Dim: "最新官方数据",
+        row3Gem: "✅ 中国 2025 最新官方数据；日本 2024.10 总务省人口推计＋内阁府确报 GDP（含排名与人均）",
+        row3Cla: "✅ 中国 2025 最新数据（含面积密度与统计口径备注）；日本 2025 国势调查（含增减%）＋2023 年度 GDP",
+        row3Gpt: "✅ 中国 2025 逐省统计局公报原链接；日本 2026.01.01 住民基本台账＋2023 年度 GDP 原表链接（考据最强）",
+        row4Dim: "大一地理教学深度",
+        row4Gem: "✅ <strong>两场最完整</strong>：胡焕庸线、大地沟带、太平洋工业带、三大地形阶梯、简称由来、旧国名、18 异名县厅考点、两版均有 4 模式随堂测验",
+        row4Cla: "🟢 <strong>中国版很亮眼</strong>（含人均 GDP 视角、小知识与 10 题地图测验）；但日本版未附地理笔记、构造线或测验，两场落差较明显",
+        row4Gpt: "🟡 两版均以“精致资料查询图鉴＋收藏书签”为主，未加入地理结构主题线或交互测验",
+        row5Dim: "工程稳定度与细节",
+        row5Gem: "✅ 模块化多文件零依赖，双击即开；京津／港澳／关东关西海上快捷标签防重叠；自行截图视觉自检纠错",
+        row5Cla: "🟢 中国版单文件零依赖完成度极高；日本版使用 <code>fetch(\"geo.json\")</code> 本地双击会遇 CORS 限制",
+        row5Gpt: "✅ 单文件内嵌零依赖，响应式与无障碍细节佳（唯中国版单文件达 1.15 MB）",
+        footer: "本展示页由 <strong>johnson-greate</strong> 创建并托管于 GitHub Pages · 所有对照模型成品均保留原始代码未作修改，仅供技术交流与教学评估参考。"
+      },
+      "en": {
+        docTitle: "AI Isometric Cute Geography Maps · 3-Model Same-Prompt Benchmark",
+        docDesc: "Head-to-head showcase of interactive China & Japan isometric cute geography maps built with the exact same prompt by Gemini 4 Neon (High), Claude Opus 5.5 (High), and GPT-6.2 Astra (High). Hosted unmodified for live comparison.",
+        eyebrow: "🗺️ AI Interactive Map Benchmark · Unmodified Originals",
+        heroTitle: "AI Isometric Cute Maps · 3×2 Benchmark Showcase",
+        heroLead: "To let everyone experience firsthand how frontier AI models compare in product thinking, geography pedagogy, visual craft, and frontend engineering, we ran the <strong>exact same Chinese prompt</strong> across <strong>Gemini 4 Neon (High)</strong>, <strong>Claude Opus 5.5 (High)</strong>, and <strong>GPT-6.2 Astra (High)</strong>. Every generated submission is hosted unmodified—click, zoom, test, and judge for yourself!",
+        promptJpLabel: "🇯🇵 Identical Japan Prompt (All 3 Models)",
+        promptJpText: "\"Please develop a map of Japan with official names, abbreviations, latest official population, official GDP, and prefectural capital cities marked with pushpins for first-year university students learning Japanese geography, presented in an isometric cute style.\"",
+        promptCnLabel: "🇨🇳 Identical China Prompt (All 3 Models)",
+        promptCnText: "\"Please develop a map of China with official names, abbreviations, latest official population, official GDP, and provincial capital cities marked with pushpins for first-year university students learning Chinese geography, presented in an isometric cute style.\"",
+        promptNote: "Note: Translated for readability; all 3 models received the exact same Traditional Chinese prompt verbatim.",
+        secJpTitle: "🇯🇵 Japan (47 Prefectures) · 3-Way Head-to-Head",
+        secJpNote: "Identical Prompt · Unmodified Live Builds",
+        secCnTitle: "🇨🇳 China (34 Provincial Divisions) · 3-Way Head-to-Head",
+        secCnNote: "Identical Prompt · Latest 2025 Official Data",
+        secTblTitle: "📊 Complete 3×2 Feature & Engineering Matrix",
+        secTblNote: "Cross-project evaluation across both China & Japan benchmarks",
+        tagModular: "Modular Multi-File",
+        tagRaw: "Unmodified Original",
+        jpGemTitle: "Japan Geography · Isometric Cute Map",
+        jpGemDesc: "Balances true 2.5D light-shaded blocks, charming Japanese micro-landmarks, and purpose-built freshman geography tools & quizzes.",
+        jpGemB1: "True 2.5D per-edge shaded walls + lift-on-select + 3D Population & GDP prism height modes",
+        jpGemB2: "Built-in Itoigawa–Shizuoka Line (50Hz/60Hz), Pacific Industrial Belt & 18 differing-name capital exam tips",
+        jpGemB3: "4-mode interactive quiz (incl. blind map click) + historic province names + hand-drawn Mt. Fuji & 3D Okinawa inset",
+        jpGemCta: "🚀 Launch Gemini 4 Neon (Japan) ↗",
+        jpClaTitle: "Japan Prefectures Isometric Map",
+        jpClaDesc: "Crisp modern data-dashboard aesthetic featuring silky 3D height transitions, 2025 Census growth rates, and dark mode.",
+        jpClaB1: "True 2.5D dual-tone extruded walls with smooth 650ms tween animations across Flat / Population / GDP modes",
+        jpClaB2: "Includes 2025 Census figures (% change vs. 2020) and FY2023 nominal GDP statistics",
+        jpClaB3: "Auto dark mode, pinch-to-zoom gestures, and a complete sortable 47-prefecture table",
+        jpClaCta: "🔍 Launch Claude Opus 5.5 (Japan) ↗",
+        jpGptTitle: "Japan Archipelago Atlas · Travel Lab",
+        jpGptDesc: "Editorial storybook & postcard aesthetic with an original Shiba Inu explorer mascot and strict primary-source citations.",
+        jpGptB1: "Original hand-drawn Shiba Inu navigator, ferries, Mt. Fuji, and custom regional postcard illustrations",
+        jpGptB2: "Uses Jan 2026 Resident Register population & FY2023 GDP with direct e-Stat / Cabinet Office source links",
+        jpGptB3: "Single zero-dependency HTML with 8-region quick focus zoom and a 47-prefecture reference table",
+        jpGptCta: "🔍 Launch GPT-6.2 Astra (Japan) ↗",
+        cnGemTitle: "China Geography · Isometric Cute Map",
+        cnGemDesc: "Unites per-edge lit 2.5D blocks, 3D 2025 official data visualization, and deep freshman Chinese geography pedagogy.",
+        cnGemB1: "True 2.5D light-shaded walls + block lift-on-select + 3D Population & GDP prism height views",
+        cnGemB2: "One-click Hu Huanyong Line overlay, 7-region totals, abbreviation etymology & China's Three Terrain Steps",
+        cnGemB3: "4-mode classroom quiz (Mixed / Abbreviation / Capital / Blind Map) + offshore quick-pick badges for Beijing–Tianjin / Shanghai / HK–Macau",
+        cnGemCta: "🚀 Launch Gemini 4 Neon (China) ↗",
+        cnClaTitle: "China Provinces · Isometric Mini-Map",
+        cnClaDesc: "Richly interactive! Features a live isometric tilt slider, GDP per capita choropleth, 3D data cylinders & a province-finder quiz.",
+        cnClaB1: "Unique live rotation tilt slider (-45° to 0°) & isometric/top-down toggle on a floating ocean board",
+        cnClaB2: "4 coloring modes (Region / Pop / GDP / GDP per capita), toggleable 3D bars, plus area & density estimates",
+        cnClaB3: "Built-in 10-question blind map quiz (auto-hidden labels + flash hints) in a single offline HTML file",
+        cnClaCta: "🔍 Launch Claude Opus 5.5 (China) ↗",
+        cnGptTitle: "Atlas of Mountains & Rivers · China Explorer",
+        cnGptDesc: "Refined woodland editorial atlas featuring per-province 2025 statistics bureau links and a study bookmark system.",
+        cnGptB1: "Every province links directly to 2025 provincial statistics bulletins with rigorous methodology notes",
+        cnGptB2: "Custom provincial silhouette postcard art on cards plus a \"My Bookmarks\" study collection",
+        cnGptB3: "All 34 provincial pins with leader-line callouts for Beijing–Tianjin / Shanghai / HK–Macau in one self-contained file",
+        cnGptCta: "🔍 Launch GPT-6.2 Astra (China) ↗",
+        tblColDim: "Dimension",
+        row1Dim: "Isometric 3D Execution",
+        row1Gem: "✅ Both builds feature <strong>true 2.5D per-edge shaded walls</strong> + lift-on-select + real 3D prism height driven by Pop/GDP",
+        row1Cla: "✅ Japan has silky 650ms 3D tween transitions; China offers a <strong>live tilt slider</strong> + 3D data rods (stacked-layer terrain)",
+        row1Gpt: "🟡 Both builds use static offset drop-shadow relief without dynamic 3D data extrusion or block lifting",
+        row2Dim: "Cute Storybook Visuals",
+        row2Gem: "✅ Highly cohesive across both: pastel clay/wood blocks + Mt. Fuji, panda, deer, bear, ships, clouds & custom insets",
+        row2Cla: "✅ China has charming pastel blobs, clouds & Emoji sights; Japan leans clean modern data dashboard (with dark mode)",
+        row2Gpt: "✅ Both achieve museum-grade editorial charm (original Shiba Inu mascot, vintage postmarks & postcards)",
+        row3Dim: "Latest Official Data",
+        row3Gem: "✅ China 2025 official data; Japan Oct 2024 MIC estimates + Cabinet Office confirmed GDP (incl. rank & per capita)",
+        row3Cla: "✅ China 2025 data (w/ density & methodology footnotes); Japan 2025 Census (% change) + FY2023 GDP",
+        row3Gpt: "✅ Direct 2025 provincial bureau links (China); Jan 2026 Resident Register + FY2023 GDP source links (Japan) — strongest citations",
+        row4Dim: "Freshman Geo Pedagogy",
+        row4Gem: "✅ <strong>Most thorough on both</strong>: Hu Line, Tectonic Line, Pacific Belt, 3 Terrain Steps, etymology, historic provinces, 18 differing capitals & 4-mode quizzes",
+        row4Cla: "🟢 <strong>Strong China edition</strong> (GDP per capita view, trivia & 10-Q quiz); Japan omits geo notes, thematic lines & quiz — noticeable consistency gap",
+        row4Gpt: "🟡 Focuses on curated atlas cards & bookmarks in both versions without thematic geo lines or interactive quizzes",
+        row5Dim: "Engineering & Polish",
+        row5Gem: "✅ Zero-CORS offline modular files; offshore callouts prevent dense-cluster overlap; self-verified via headless screenshots",
+        row5Cla: "🟢 China is a rock-solid single offline file; Japan calls <code>fetch(\"geo.json\")</code> which hits CORS when opened locally",
+        row5Gpt: "✅ Single-file zero-dependency portability with strong responsiveness & accessibility (China HTML is 1.15 MB)",
+        footer: "Built and hosted on GitHub Pages by <strong>johnson-greate</strong> · All benchmark submissions remain unmodified in their original code for transparent technical & educational comparison."
+      }
+    };
+
+    const textNodes = document.querySelectorAll("[data-i18n]");
+    const htmlNodes = document.querySelectorAll("[data-i18n-html]");
+    const promptNotes = document.querySelectorAll(".prompt-note");
+    const langBtns = document.querySelectorAll(".lang-btn");
+
+    function applyLanguage(lang, updateUrl = true) {
+      const dict = I18N[lang] || I18N["zh-TW"];
+      const activeLang = I18N[lang] ? lang : "zh-TW";
+
+      document.documentElement.lang = activeLang;
+      document.title = dict.docTitle;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.setAttribute("content", dict.docDesc);
+
+      textNodes.forEach((el) => {
+        const key = el.dataset.i18n;
+        if (dict[key] !== undefined) el.textContent = dict[key];
+      });
+
+      htmlNodes.forEach((el) => {
+        const key = el.dataset.i18nHtml;
+        if (dict[key] !== undefined) el.innerHTML = dict[key];
+      });
+
+      promptNotes.forEach((el) => {
+        el.hidden = !dict.promptNote;
+      });
+
+      langBtns.forEach((btn) => {
+        const isCurrent = btn.dataset.lang === activeLang;
+        btn.classList.toggle("active", isCurrent);
+        btn.setAttribute("aria-pressed", String(isCurrent));
+      });
+
+      try {
+        localStorage.setItem("ai_map_showcase_lang", activeLang);
+      } catch (_) {}
+
+      if (updateUrl && window.history && window.history.replaceState) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("lang", activeLang);
+        window.history.replaceState({}, "", url);
+      }
+    }
+
+    langBtns.forEach((btn) => {
+      btn.addEventListener("click", () => applyLanguage(btn.dataset.lang, true));
+    });
+
+    (function initLanguage() {
+      const params = new URLSearchParams(window.location.search);
+      const urlLang = params.get("lang");
+      let saved = null;
+      try {
+        saved = localStorage.getItem("ai_map_showcase_lang");
+      } catch (_) {}
+      const initial = (urlLang && I18N[urlLang]) ? urlLang : (saved && I18N[saved]) ? saved : "zh-TW";
+      applyLanguage(initial, Boolean(urlLang));
+    })();
+  </script>
 </body>
 </html>
